@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Nasi Lemak Kak Zila</title>
+    <link href="https://cdn.jsdelivr.net/npm/fontsource-poppins@5.0.0/index.css" rel="stylesheet">
+
+
+<!-- PWA Meta system Tags -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#2E7D32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kak Zila">
+<link rel="apple-touch-icon" href="/nasi-lemak-icon-192.png">
+
+
+
+<style>
+:root {
+    --primary: #2E7D32;
+    --primary-light: #4CAF50;
+    --primary-dark: #1B5E20;
+    --accent: #FFD54F;
+    --accent-dark: #FFC107;
+    --bg: #F5F7F5;
+    --card: #FFFFFF;
+    --text: #1A1A1A;
+    --text-muted: #6B7280;
+    --success: #25D366;
+    --danger: #EF4444;
+    --info: #4285F4;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #E5E7EB;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px 0;
+}
+
+.phone-frame {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 480px) {
+    .phone-frame {
+        min-height: 850px;
+        max-height: 900px;
+        border-radius: 40px;
+        overflow: hidden;
+        border: 8px solid #1A1A1A;
+        margin: 20px auto;
+    }
+}
+
+.app-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    padding: 20px;
+    color: #fff;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.header-greeting {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.header-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    padding-bottom: 90px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tab-page {
+    display: none;
+    margin: 0;
+    padding: 0;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== GAMBAR FULL SIZE ========== */
+.hero-image {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    display: block;
+    margin-top: -2.6rem;
+    padding: 0;
+    border: none;
+}
+
+.hero-caption {
+    padding: 16px 20px ;
+    text-align: center;
+    background: var(--card);
+    margin: 0;
+}
+
+.hero-caption h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.hero-caption p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    padding: 16px 20px 12px;
+}
+
+.menu-list {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.menu-item {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: all 0.2s;
+}
+
+.menu-item.featured {
+    background: linear-gradient(135deg, #FFF8E1, #FFFDE7);
+    border: 2px solid var(--accent);
+}
+
+.menu-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.menu-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+
+.menu-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+.menu-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+
+.menu-price {
+    background: var(--primary);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.menu-item.featured .menu-price {
+    background: var(--accent-dark);
+    color: var(--primary-dark);
+}
+
+.add-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.add-btn:active {
+    transform: scale(0.8);
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #F3F4F6;
+    border-radius: 10px;
+    padding: 3px;
+}
+
+.quantity-control button {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: var(--card);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.quantity-control .qty-num {
+    font-weight: 700;
+    font-size: 0.85rem;
+    min-width: 20px;
+    text-align: center;
+}
+
+.cart-summary {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.cart-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 0.85rem;
+}
+
+.cart-item-row:last-child {
+    border-bottom: none;
+}
+
+.cart-item-name {
+    font-weight: 600;
+}
+
+.cart-item-qty {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    margin-top: 10px;
+    border-top: 2px solid #E5E7EB;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.cart-empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 20px;
+    font-size: 0.85rem;
+}
+
+.cta-btn {
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #fff;
+    width: 100%;
+}
+
+.cta-wa { background: var(--success); }
+.cta-map { background: var(--info); }
+.cta-call { background: var(--primary); }
+
+.clear-cart-btn {
+    background: transparent;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* Kad Bisnes */
+.bizcard-container { padding: 16px; }
+
+.bizcard-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    background: var(--card);
+    padding: 4px;
+    border-radius: 14px;
+}
+
+.bizcard-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.bizcard-tab.active {
+    background: var(--primary);
+    color: #fff;
+}
+
+.bizcard-display {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    aspect-ratio: 16/10;
+    background: var(--card);
+}
+
+.bizcard-display img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+.bizcard-display img.show {
+    display: block;
+}
+
+.bizcard-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.biz-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.biz-btn.primary { background: var(--primary); color: #fff; }
+.biz-btn.secondary { background: var(--accent); color: var(--primary-dark); }
+
+/* Hubungi */
+.contact-section {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.contact-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.contact-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.contact-info { flex: 1; }
+.contact-label { font-size: 0.7rem; color: var(--text-muted); }
+.contact-value { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+
+/* Lokasi Tab */
+.lokasi-container {
+    padding: 16px;
+}
+
+.lokasi-map-img {
+    width: 100%;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    margin-bottom: 16px;
+}
+
+.lokasi-info-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 12px;
+}
+
+.lokasi-info-card .lokasi-alamat {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.lokasi-info-card .lokasi-nota {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.waktu-operasi {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 12px;
+}
+
+.waktu-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 0.85rem;
+}
+
+.waktu-row:last-child {
+    border-bottom: none;
+}
+
+.waktu-hari {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.waktu-masa {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    background: var(--card);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom, 0));
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+    flex-shrink: 0;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 8px;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+    position: relative;
+    border-radius: 12px;
+    transition: all 0.2s;
+    min-width: 50px;
+}
+
+.nav-icon {
+    font-size: 1.3rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.nav-label {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.nav-item.active {
+    background: rgba(46, 125, 50, 0.08);
+}
+
+.nav-item.active .nav-icon {
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.nav-item.active .nav-label {
+    color: var(--primary);
+}
+
+.cart-badge {
+    position: absolute;
+    top: 0px;
+    right: 2px;
+    width: 18px;
+    height: 18px;
+    background: var(--danger);
+    border-radius: 50%;
+    font-size: 0.55rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    animation: popIn 0.3s ease;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--text);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 12px;
+    z-index: 200;
+    opacity: 0;
+    transition: all 0.3s;
+    font-size: 0.85rem;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+</style>
+</head>
+<body>
+<div class="phone-frame">
+    <div class="app-header">
+        <div class="header-greeting">Assalamualaikum 👋  Salam Sejahtera</div>
+        <div class="header-name">Nasi Lemak Kak Zila</div>
+    </div>
+
+    <div class="content">
+
+        <!-- MENU TAB (Utama) -->
+        <div class="tab-page active" id="tab-menu">
+            <!-- SATU GAMBAR FULL SIZE -->
+            <img src="https://i.postimg.cc/nhVCC9Pd/media.jpg" class="hero-image" alt="Nasi Lemak Kak Zila">
+            <div class="hero-caption">
+                <h2>Nasi Lemak Kak Zila</h2>
+                <p>📍 PPR Sri Pantai Blok 102 • 🕐 7:30PM - 12AM</p>
+            </div>
+
+            <div class="section-title">🍽️ Menu</div>
+            <div class="menu-list" id="menu-list"></div>
+
+            <div class="cart-summary" id="cart-summary">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-weight: 700; font-size: 0.95rem;">🛒 Troli</span>
+                    <button class="clear-cart-btn" onclick="clearCart()" id="clear-btn" style="display:none;">🗑️ Kosongkan</button>
+                </div>
+                <div id="cart-items"><div class="cart-empty">Tiada item</div></div>
+                <div class="cart-total" id="cart-total" style="display:none;">
+                    <span>Jumlah</span>
+                    <span id="total-price">RM0.00</span>
+                </div>
+            </div>
+
+            <div style="padding: 0 16px 16px;">
+                <button class="cta-btn cta-wa" onclick="orderWhatsApp()">💬 Order WhatsApp</button>
+            </div>
+        </div>
+
+        <!-- KAD TAB -->
+        <div class="tab-page" id="tab-kad">
+            <div class="bizcard-container">
+                <div class="bizcard-tabs">
+                    <button class="bizcard-tab active" onclick="showCard('front', this)">📇 Depan</button>
+                    <button class="bizcard-tab" onclick="showCard('back', this)">📋 Belakang</button>
+                </div>
+                <div class="bizcard-display">
+                    <img src="https://i.postimg.cc/vZ2gCR74/media-(2).jpg" class="show" id="card-front" alt="Kad Depan">
+                    <img src="https://i.postimg.cc/Pxf94qbN/media(3).png" id="card-back" alt="Kad Belakang">
+                </div>
+                <div class="bizcard-actions">
+                    <button class="biz-btn primary" onclick="simpanKad()">📥 Simpan</button>
+                    <button class="biz-btn secondary" onclick="kongsiKad()">📤 Kongsi</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HUBUNGI TAB (WhatsApp + Telefon sahaja) -->
+        <div class="tab-page" id="tab-hubungi">
+            <div class="contact-section">
+                <div class="contact-card">
+                    <div class="contact-icon" style="background:#E8F5E9;">📱</div>
+                    <div class="contact-info">
+                        <div class="contact-label">WhatsApp</div>
+                        <div class="contact-value">011-1164 0776</div>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon" style="background:#E3F2FD;">📞</div>
+                    <div class="contact-info">
+                        <div class="contact-label">Telefon</div>
+                        <div class="contact-value">011-1164 0776</div>
+                    </div>
+                </div>
+
+                <button class="cta-btn cta-wa" onclick="bukaWhatsApp()">💬 WhatsApp</button>
+                <button class="cta-btn cta-call" onclick="window.location.href='tel:+60 11-1164 0776'">📞 Terus Telefon</button>
+            </div>
+        </div>
+
+        <!-- LOKASI TAB (Berasingan) -->
+        <div class="tab-page" id="tab-lokasi">
+            <div class="lokasi-container">
+                <img src="https://i.postimg.cc/nhVCC9Pd/media.jpg" class="lokasi-map-img" alt="Lokasi PPR Sri Pantai">
+
+                <div class="lokasi-info-card">
+                    <div class="lokasi-alamat">📍 PPR Sri Pantai Blok 102</div>
+                    <div class="lokasi-nota">Kuala Lumpur, Malaysia</div>
+                </div>
+
+                <div class="waktu-operasi">
+                    <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 12px; color: var(--text);">🕐 Waktu Operasi</div>
+                    <div class="waktu-row">
+                        <span class="waktu-hari">Setiap Hari</span>
+                        <span class="waktu-masa">7:30 PM - 12:00 AM</span>
+                    </div>
+                </div>
+
+                <button class="cta-btn cta-map" onclick="bukaMaps()" style="margin-top: 8px;">🗺️ Buka Google Maps</button>
+                <button class="cta-btn cta-wa" onclick="bukaWaze()" style="margin-top: 8px; background: #33CCFF;">🚗 Buka Waze</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation (5 butang) -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="tukarTab('menu')">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Utama</span>
+            <span class="cart-badge" id="nav-badge" style="display:none;">0</span>
+        </button>
+        <button class="nav-item" onclick="tukarTab('kad')">
+            <span class="nav-icon">💳</span>
+            <span class="nav-label">Kad niaga</span>
+        </button>
+        <button class="nav-item" onclick="tukarTab('hubungi')">
+            <span class="nav-icon">📞</span>
+            <span class="nav-label">Hubungi</span>
+        </button>
+        <button class="nav-item" onclick="tukarTab('lokasi')">
+            <span class="nav-icon">📍</span>
+            <span class="nav-label">Lokasi</span>
+        </button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const menu = [
+        { id: 1, nama: 'Nasi Lemak Berlauk', desc: 'Ayam goreng, telur, sambal, ikan bilis', harga: 5.00, featured: true },
+        { id: 2, nama: 'Nasi Lemak Biasa', desc: 'Nasi lemak klasik dengan sambal', harga: 2.00, featured: false },
+        { id: 3, nama: 'Kaaripuf', desc: 'Karipap rangup & sedap', harga: 1.00, featured: false },
+        { id: 4, nama: 'Air Balang', desc: 'Minuman segar menyegarkan', harga: 1.00, featured: false }
+    ];
+
+    let troli = {};
+    try { const s = localStorage.getItem('kz_troli'); if (s) troli = JSON.parse(s); } catch(e) {}
+
+    function simpanTroli() { localStorage.setItem('kz_troli', JSON.stringify(troli)); }
+
+    function tambahItem(id) {
+        troli[id] = (troli[id] || 0) + 1;
+        simpanTroli();
+        kemasKiniUI();
+        toast('✅ Ditambah ke troli');
+    }
+
+    function kurangItem(id) {
+        if (troli[id] > 1) { troli[id]--; }
+        else { delete troli[id]; }
+        simpanTroli();
+        kemasKiniUI();
+    }
+
+    function clearCart() {
+        troli = {};
+        simpanTroli();
+        kemasKiniUI();
+        toast('🗑️ Troli dikosongkan');
+    }
+
+    function jumlahItem() {
+        return Object.values(troli).reduce((a, b) => a + b, 0);
+    }
+
+    function jumlahHarga() {
+        return Object.entries(troli).reduce((t, [id, q]) => {
+            const m = menu.find(x => x.id === parseInt(id));
+            return t + (m ? m.harga * q : 0);
+        }, 0);
+    }
+
+    function binaMenuHTML(m) {
+        const qty = troli[m.id] || 0;
+        let butang;
+        if (qty > 0) {
+            butang = `<div class="quantity-control">
+                <button onclick="kurangItem(${m.id})">−</button>
+                <span class="qty-num">${qty}</span>
+                <button onclick="tambahItem(${m.id})">+</button>
+            </div>`;
+        } else {
+            butang = `<button class="add-btn" onclick="tambahItem(${m.id})">+</button>`;
+        }
+        return `
+            <div class="menu-item ${m.featured ? 'featured' : ''}">
+                <div class="menu-info">
+                    <div class="menu-name">${m.nama}</div>
+                    <div class="menu-desc">${m.desc}</div>
+                </div>
+                <div class="menu-actions">
+                    <span class="menu-price">RM${m.harga.toFixed(2)}</span>
+                    ${butang}
+                </div>
+            </div>
+        `;
+    }
+
+    function kemasKiniUI() {
+        const el = document.getElementById('menu-list');
+        if (el) el.innerHTML = menu.map(m => binaMenuHTML(m)).join('');
+
+        const cartEl = document.getElementById('cart-items');
+        const totalEl = document.getElementById('cart-total');
+        const priceEl = document.getElementById('total-price');
+        const clearBtn = document.getElementById('clear-btn');
+        const badge = document.getElementById('nav-badge');
+        const jml = jumlahItem();
+
+        if (jml === 0) {
+            cartEl.innerHTML = '<div class="cart-empty">Tiada item</div>';
+            totalEl.style.display = 'none';
+            clearBtn.style.display = 'none';
+            badge.style.display = 'none';
+        } else {
+            cartEl.innerHTML = Object.entries(troli).map(([id, q]) => {
+                const m = menu.find(x => x.id === parseInt(id));
+                return m ? `<div class="cart-item-row">
+                    <span class="cart-item-name">${m.nama} <span class="cart-item-qty">x${q}</span></span>
+                    <span style="font-weight:600;">RM${(m.harga * q).toFixed(2)}</span>
+                </div>` : '';
+            }).join('');
+            totalEl.style.display = 'flex';
+            priceEl.textContent = `RM${jumlahHarga().toFixed(2)}`;
+            clearBtn.style.display = 'block';
+            badge.style.display = 'flex';
+            badge.textContent = jml;
+        }
+    }
+
+    function orderWhatsApp() {
+        const items = Object.entries(troli);
+        if (items.length === 0) { toast('🛒 Troli kosong!'); return; }
+        let teks = 'Assalamualaikum / selamat sejahtera kedai nasi lemak kak zila, saya nak order:%0A%0A';
+        items.forEach(([id, q]) => {
+            const m = menu.find(x => x.id === parseInt(id));
+            if (m) teks += `${m.nama} x${q} = RM${(m.harga * q).toFixed(2)}%0A`;
+        });
+        teks += `%0A*Jumlah: RM${jumlahHarga().toFixed(2)}*`;
+        window.open(`https://wa.me/6011-1164 0776?text=${teks}`, '_blank');
+    }
+
+    function tukarTab(nama) {
+        document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const target = document.getElementById('tab-' + nama);
+        if (target) target.classList.add('active');
+
+        const semuaNav = document.querySelectorAll('.nav-item');
+        const labelMap = { menu: 'Utama', kad: 'Kad', hubungi: 'Hubungi', lokasi: 'Lokasi' };
+        semuaNav.forEach(n => {
+            if (n.textContent.trim().includes(labelMap[nama])) {
+                n.classList.add('active');
+            }
+        });
+
+        document.querySelector('.content').scrollTop = 0;
+        kemasKiniUI();
+    }
+
+    function showCard(side, btn) {
+        document.querySelectorAll('.bizcard-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('card-front').classList.remove('show');
+        document.getElementById('card-back').classList.remove('show');
+        setTimeout(() => document.getElementById('card-' + side).classList.add('show'), 50);
+    }
+
+    async function simpanKad() {
+        const active = document.querySelector('.bizcard-tab.active');
+        const side = active.textContent.includes('Depan') ? 'front' : 'back';
+        const url = side === 'front' ? 'https://i.postimg.cc/vZ2gCR74/media-(2).jpg' : 'https://i.postimg.cc/Pxf94qbN/media(3).png';
+        try {
+            const r = await fetch(url);
+            const b = await r.blob();
+            const u = URL.createObjectURL(b);
+            const a = document.createElement('a');
+            a.href = u;
+            a.download = `Kad-Kak-Zila-${side}.jpg`;
+            a.click();
+            URL.revokeObjectURL(u);
+            toast('✅ Disimpan!');
+        } catch(e) {
+            window.open(url, '_blank');
+            toast('📎 Dibuka di tab baru');
+        }
+    }
+
+    async function kongsiKad() {
+        const d = { title: 'Nasi Lemak Kak Zila', text: 'Jom singgah! PPR Sri Pantai Blok 102. WhatsApp: 011-1164 0776' };
+        if (navigator.share) { try { await navigator.share(d); } catch(e) {} }
+        else { 
+            try {
+                await navigator.clipboard.writeText(d.text);
+                toast('📋 Disalin ke clipboard!');
+            } catch(e) {
+                toast('📤 Kongsi manual melalui WhatsApp');
+            }
+        }
+    }
+
+    function bukaWhatsApp() { window.open('https://wa.me/6011-1164 0776', '_blank'); }
+    function bukaMaps() { window.open('https://maps.google.com/?q=PPR+Sri+Pantai+Blok+102', '_blank'); }
+    function bukaWaze() { window.open('https://waze.com/ul?q=PPR+Sri+Pantai+Blok+102', '_blank'); }
+
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._t);
+        t._t = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    kemasKiniUI();
+    
+    
+    //📌 Service Worker 
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then((reg) => console.log('✅ SW registered:', reg.scope))
+                .catch((err) => console.log('❌ SW failed:', err));
+        });
+    }
+
+</script>
+</body>
+</html>
