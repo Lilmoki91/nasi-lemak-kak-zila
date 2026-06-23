@@ -1,10 +1,7 @@
-
-
-
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "nasi-lemak-kak-zila",
-  "compatibility_date": "2025-09-27",
+  "compatibility_date": "2026-06-23",
   "observability": {
     "enabled": true
   },
