@@ -7,29 +7,13 @@
     <link href="https://cdn.jsdelivr.net/npm/fontsource-poppins@5.0.0/index.css" rel="stylesheet">
 
 
-<!-- PWA Meta Tags -->
-<link rel="manifest" href="/manifest.json">
+<!-- PWA Sistem Nasi Lemak Kak Zila -->
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2E7D32">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kak Zila">
-<link rel="apple-touch-icon" href="/nasi-lemak-icon-192.png">
-
-<!-- Service Worker -->
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then((reg) => {
-                    console.log('✅ PWA: Service Worker berjaya!', reg.scope);
-                })
-                .catch((err) => {
-                    console.log('❌ PWA: Service Worker gagal', err);
-                });
-        });
-    }
-</script>
-
+<link rel="apple-touch-icon" href="nasi-lemak-icon-192.png">
 
 <style>
 :root {
@@ -942,6 +926,41 @@ body {
     }
 
     kemasKiniUI();
+
+    
+//📌 PWA Service Worker 
+// ==============================================
+// 🍽️ NASI LEMAK KAK ZILA - PWA FORCE SERVICE WORKER
+// ==============================================
+if ('serviceWorker' in navigator) {
+  // Unregister semua SW lama
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    registrations.forEach(reg => reg.unregister());
+  });
+  
+  // Register SW baru
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => {
+        console.log('✅ Nasi Lemak Kak Zila SW registered');
+        
+        // Auto update
+        reg.update();
+        
+        // Kalau ada waiting, activate
+        if (reg.waiting) {
+          reg.waiting.postMessage({type: 'SKIP_WAITING'});
+        }
+      })
+      .catch(err => console.log('❌ SW failed:', err));
+  });
+  
+  // Reload bila SW baru active
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
+}
+
     
 </script>
 </body>
