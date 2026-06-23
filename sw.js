@@ -15,7 +15,7 @@ const FILES_TO_CACHE = [
 // 📦 INSTALL
 // ==============================================
 self.addEventListener('install', event => {
-  console.log('🍽️ Installing Kak Zila SW...');
+  console.log('🍽️ Installing Zila Food SW...');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -34,7 +34,7 @@ self.addEventListener('install', event => {
 // 🚀 ACTIVATE
 // ==============================================
 self.addEventListener('activate', event => {
-  console.log('⚡ Activating Kak Zila SW...');
+  console.log('⚡ Activating Zila Food SW...');
   
   event.waitUntil(
     caches.keys().then(keys => {
@@ -47,7 +47,7 @@ self.addEventListener('activate', event => {
         })
       );
     }).then(() => {
-      console.log('✅ Kak Zila SW sedia!');
+      console.log('✅ Zila Food SW sedia!');
       return self.clients.claim();
     })
   );
