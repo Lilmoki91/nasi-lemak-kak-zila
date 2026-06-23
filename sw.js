@@ -2,7 +2,7 @@
 // 🍽️ NASI LEMAK KAK ZILA - SERVICE WORKER
 // ==============================================
 
-const CACHE_NAME = 'kak-zila-cache-v2';
+const CACHE_NAME = 'Zila-Food-cache-v2';
 const FILES_TO_CACHE = [
   './',
   './index.html',
