@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kak-zila-v2';
+const CACHE_NAME = 'kak-zila-v3';
 const ASSETS = [
     '/',
     '/index.html',
@@ -7,42 +7,58 @@ const ASSETS = [
     '/nasi-lemak-icon-512.png'
 ];
 
-// Install - simpan aset dalam cache
+// Install
 self.addEventListener('install', (event) => {
+    console.log('✅ SW: Install');
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS);
+            console.log('✅ SW: Caching assets');
+            return cache.addAll(ASSETS).catch((err) => {
+                console.log('❌ SW: Cache failed', err);
+            });
         })
     );
     self.skipWaiting();
 });
 
-// Activate - buang cache lama
+// Activate
 self.addEventListener('activate', (event) => {
+    console.log('✅ SW: Activate');
     event.waitUntil(
         caches.keys().then((keys) => {
             return Promise.all(
                 keys.filter((key) => key !== CACHE_NAME)
-                    .map((key) => caches.delete(key))
+                    .map((key) => {
+                        console.log('🗑️ SW: Deleting old cache', key);
+                        return caches.delete(key);
+                    })
             );
         })
     );
     self.clients.claim();
 });
 
-// Fetch - guna cache dulu, lepas tu network
+// Fetch
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((cached) => {
-            return cached || fetch(event.request).then((response) => {
+            if (cached) {
+                return cached;
+            }
+            return fetch(event.request).then((response) => {
+                if (!response || response.status !== 200 || response.type !== 'basic') {
+                    return response;
+                }
                 const clone = response.clone();
                 caches.open(CACHE_NAME).then((cache) => {
                     cache.put(event.request, clone);
                 });
                 return response;
+            }).catch(() => {
+                if (event.request.mode === 'navigate') {
+                    return caches.match('/index.html');
+                }
             });
-        }).catch(() => {
-            return caches.match('/index.html');
         })
     );
 });
