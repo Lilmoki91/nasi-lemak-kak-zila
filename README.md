@@ -21,7 +21,7 @@
 
 | Kad Depan | Kad Belakang |
 |:---:|:---:|
-| ![Kad Depan](https://i.postimg.cc/vZ2gCR74/media-(2).jpg) | ![Kad Belakang](https://i.postimg.cc/Qt1FBH2B/media-(1).jpg) |
+| ![Kad Depan](https://i.postimg.cc/vZ2gCR74/media-(2).jpg) | ![Kad Belakang](https://i.postimg.cc/Pxf94qbN/media(3).png) |
 
 ---
 
