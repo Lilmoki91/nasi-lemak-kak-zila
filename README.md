@@ -51,8 +51,8 @@
 
 | Platform | Nombor / Alamat |
 |----------|-----------------|
-| WhatsApp | [+60 11-6115 6167](https://wa.me/601161156167) |
-| Telefon | [+60 11-6115 6167](tel:+601161156167) |
+| WhatsApp | [+60 11-1164 0776](https://wa.me/6011-1164 0776) |
+| Telefon | [+60 11-1164 0776](tel:+6011-11640776) |
 | Lokasi | PPR Sri Pantai Blok 102, Kuala Lumpur |
 
 ---
