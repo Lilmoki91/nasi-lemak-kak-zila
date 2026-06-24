@@ -2,8 +2,8 @@
 
 ![Nasi Lemak Kak Zila](https://i.postimg.cc/nhVCC9Pd/media.jpg)
 
-> **Micro Web App untuk Pemesanan Nasi Lemak Kak Zila**  
-> Dibina dengan HTML, CSS & JavaScript — ringan, laju, dan mesra mobile.
+> **Progressive Web App (PWA) untuk Pemesanan Nasi Lemak Kak Zila**  
+> Dibina dengan HTML, CSS & JavaScript — ringan, laju, mesra mobile, dan boleh install.
 
 ---
 
@@ -25,14 +25,28 @@
 
 ---
 
+## 📲 PWA (Install App)
+
+| Platform | Cara Install |
+|----------|--------------|
+| **Android Chrome** | Buka site → popup **"Install App"** → klik Install |
+| **iPhone Safari** | Buka site → tap **Share** → **Add to Home Screen** |
+| **Desktop Chrome** | Buka site → ikon ⊕ di address bar → Install |
+
+**Nama App:** Zila Food
+
+---
+
 ## 🛒 Fungsi Utama
 
 - **🍽️ Menu Digital** — 4 item dengan harga
 - **🛒 Sistem Troli** — Tambah, kurang, kira jumlah automatik
-- **💬 Order WhatsApp** — Hantar pesanan terus ke WhatsApp
+- **💬 Order WhatsApp** — Hantar pesanan terus ke WhatsApp (berfungsi dalam PWA)
 - **💳 Kad Bisnes Digital** — Depan & belakang, boleh simpan & kongsi
 - **📞 Hubungi** — WhatsApp & panggilan terus
 - **📍 Lokasi** — Google Maps & Waze
+- **📲 PWA** — Boleh install, offline support, auto update
+- **🗑️ Auto Clear Cache** — Cache lama dipadam automatik
 
 ---
 
@@ -65,12 +79,32 @@
 
 ---
 
+## 📁 Struktur Fail
+
+```
+
+nasi-lemak-kak-zila/
+├── index.html
+├── manifest.json
+├── sw.js
+├── nasi-lemak-icon-192.png
+├── nasi-lemak-icon-512.png
+└── README.md
+
+```
+
+---
+
 ## 🚀 Teknologi
 
-- **HTML5** — Struktur halaman
-- **CSS3** — Styling & animasi
-- **JavaScript (Vanilla)** — Sistem troli, navigasi, localStorage
-- **Cloudflare Pages** — Hosting
+| Teknologi | Kegunaan |
+|-----------|----------|
+| **HTML5** | Struktur halaman |
+| **CSS3** | Styling, animasi, responsive |
+| **JavaScript (Vanilla)** | Sistem troli, navigasi, localStorage |
+| **Service Worker** | Offline cache, auto update |
+| **Web App Manifest** | PWA install |
+| **Cloudflare Pages** | Hosting percuma |
 
 ---
 
@@ -78,8 +112,9 @@
 
 ```bash
 # Clone repo
-git clone https://github.com/username/nasi-lemak-kak-zila.git
+git clone https://github.com/Lilmoki91/nasi-lemak-kak-zila.git
 
 # Buka dalam browser
 cd nasi-lemak-kak-zila
 open index.html
+```
