@@ -842,17 +842,20 @@ body {
         }
     }
 
+    //📌 fungsi order whatapps
     function orderWhatsApp() {
-        const items = Object.entries(troli);
-        if (items.length === 0) { toast('🛒 Troli kosong!'); return; }
-        let teks = 'Assalamualaikum / selamat sejahtera kedai nasi lemak kak zila, saya nak order:%0A%0A';
-        items.forEach(([id, q]) => {
-            const m = menu.find(x => x.id === parseInt(id));
-            if (m) teks += `${m.nama} x${q} = RM${(m.harga * q).toFixed(2)}%0A`;
-        });
-        teks += `%0A*Jumlah: RM${jumlahHarga().toFixed(2)}*`;
-        window.open(`https://wa.me/6011-1164 0776?text=${teks}`, '_blank');
-    }
+    const items = Object.entries(troli);
+    if (items.length === 0) { toast('🛒 Troli kosong!'); return; }
+    let teks = 'Assalamualaikum / selamat sejahtera kedai nasi lemak kak zila, saya nak order:%0A%0A';
+    items.forEach(([id, q]) => {
+        const m = menu.find(x => x.id === parseInt(id));
+        if (m) teks += `${m.nama} x${q} = RM${(m.harga * q).toFixed(2)}%0A`;
+    });
+    teks += `%0A*Jumlah: RM${jumlahHarga().toFixed(2)}*`;
+    
+    // Guna location.href supaya berfungsi dalam PWA
+    window.location.href = `https://wa.me/601111640776?text=${teks}`;
+}
 
     function tukarTab(nama) {
         document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
@@ -913,9 +916,20 @@ body {
         }
     }
 
-    function bukaWhatsApp() { window.open('https://wa.me/6011-1164 0776', '_blank'); }
-    function bukaMaps() { window.open('https://maps.google.com/?q=PPR+Sri+Pantai+Blok+102', '_blank'); }
-    function bukaWaze() { window.open('https://waze.com/ul?q=PPR+Sri+Pantai+Blok+102', '_blank'); }
+    //📌 fungsi buka whatApps
+    function bukaWhatsApp() { 
+    window.location.href = 'https://wa.me/601111640776'; 
+}
+
+//📌 fungsi buka maps gps
+    function bukaMaps() { 
+    window.location.href = 'https://maps.google.com/?q=PPR+Sri+Pantai+Blok+102'; 
+}
+
+//📌 fungsi buka wave
+    function bukaWaze() { 
+    window.location.href = 'https://waze.com/ul?q=PPR+Sri+Pantai+Blok+102'; 
+}
 
     function toast(msg) {
         const t = document.getElementById('toast');
