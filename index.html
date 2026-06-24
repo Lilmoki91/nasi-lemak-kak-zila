@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/fontsource-poppins@5.0.0/index.css" rel="stylesheet">
 
 
-<!-- PWA Sistem Nasi Lemak Kak Zila -->
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2E7D32">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -929,39 +929,61 @@ body {
 
     
 //📌 PWA Service Worker 
-// ==============================================
-// 🍽️ NASI LEMAK KAK ZILA - PWA FORCE SERVICE WORKER
-// ==============================================
+// PWA Service Worker - AUTO PADAM CACHE 
+
 if ('serviceWorker' in navigator) {
-  // Unregister semua SW lama
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    registrations.forEach(reg => reg.unregister());
-  });
-  
-  // Register SW baru
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => {
-        console.log('✅ Nasi Lemak Kak Zila SW registered');
-        
-        // Auto update
-        reg.update();
-        
-        // Kalau ada waiting, activate
-        if (reg.waiting) {
-          reg.waiting.postMessage({type: 'SKIP_WAITING'});
+    
+    // ==============================================
+    // 🔥 AUTO PADAM SEMUA CACHE LAMA
+    // ==============================================
+    if ('caches' in window) {
+        caches.keys().then(function(keys) {
+            keys.forEach(function(key) {
+                console.log('🗑️ Cache deleted:', key);
+                caches.delete(key);
+            });
+        });
+    }
+
+    // ==============================================
+    // 🔥 UNREGISTER SEMUA SW LAMA
+    // ==============================================
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        registrations.forEach(function(reg) {
+            reg.unregister();
+            console.log('🗑️ Old SW unregistered');
+        });
+    });
+
+    // ==============================================
+    // ✅ REGISTER SW BARU
+    // ==============================================
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('sw.js')
+            .then(function(reg) {
+                console.log('✅ Zila Food SW registered');
+                reg.update();
+                if (reg.waiting) {
+                    reg.waiting.postMessage('SKIP_WAITING');
+                }
+            })
+            .catch(function(err) {
+                console.log('❌ SW failed:', err);
+            });
+    });
+
+    // ==============================================
+    // 🔄 AUTO RELOAD BILA SW BARU AKTIF
+    // ==============================================
+    var refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+        if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
         }
-      })
-      .catch(err => console.log('❌ SW failed:', err));
-  });
-  
-  // Reload bila SW baru active
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
-  });
+    });
 }
 
-    
 </script>
 </body>
 </html>
