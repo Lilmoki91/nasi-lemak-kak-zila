@@ -118,7 +118,7 @@ open index.html
 ```
 
 ---
-
+```
 🔧 PWA Features
 
 Feature Status
@@ -130,7 +130,7 @@ Maskable Icons ✅
 WhatsApp dalam PWA ✅
 Google Maps ✅
 Waze ✅
-
+```
 ---
 
 📝 Lesen
@@ -142,4 +142,4 @@ Dibina dengan ❤️ untuk menyokong perniagaan kecil.
 
 Sekian, terima kasih 🥰
 
-```
+
