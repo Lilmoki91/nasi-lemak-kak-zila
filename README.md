@@ -133,13 +133,13 @@ Waze ✅
 ```
 ---
 
-📝 Lesen
+## 📝 Lesen
 
 Projek ini untuk kegunaan peribadi Nasi Lemak Kak Zila.
 Dibina dengan ❤️ untuk menyokong perniagaan kecil.
 
 ---
 
-Sekian, terima kasih 🥰
+**Sekian, terima kasih 🥰**
 
 
