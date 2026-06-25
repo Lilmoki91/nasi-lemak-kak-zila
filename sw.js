@@ -1,7 +1,6 @@
 // ==============================================
 // 🍽️ ZILA FOOD - SERVICE WORKER v6
-// ZERO CACHE 
-// TAK SIMPAN APA-APA. BERSIH 100%.
+// ZERO CACHE - ZERO STORAGE - BERSIH 100%
 // ==============================================
 
 self.addEventListener('install', () => {
@@ -15,7 +14,7 @@ self.addEventListener('activate', (event) => {
         caches.keys().then((keys) => {
             return Promise.all(
                 keys.map((key) => {
-                    console.log('🗑️ Deleted:', key);
+                    console.log('🗑️ Cache deleted:', key);
                     return caches.delete(key);
                 })
             );
@@ -26,8 +25,8 @@ self.addEventListener('activate', (event) => {
     );
 });
 
+// ZERO cache — terus network, tak simpan apa
 self.addEventListener('fetch', (event) => {
-    // Skip semua — guna network terus. Tak simpan cache.
     event.respondWith(fetch(event.request));
 });
 
