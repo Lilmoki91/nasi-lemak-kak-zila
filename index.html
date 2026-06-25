@@ -950,14 +950,13 @@ body {
 
     kemasKiniUI();
 
-    
-//📌 PWA Service Worker 
-// PWA Service Worker - AUTO PADAM CACHE 
-
+// ========================================
+// 📌 PWA Service Worker - AUTO PADAM CACHE + FORCE UPDATE 📌
+// =========================================
 if ('serviceWorker' in navigator) {
-    
+
     // ==============================================
-    // 🔥 AUTO PADAM SEMUA CACHE LAMA
+    // 🔥 LANGKAH 1: AUTO PADAM SEMUA CACHE LAMA
     // ==============================================
     if ('caches' in window) {
         caches.keys().then(function(keys) {
@@ -969,7 +968,7 @@ if ('serviceWorker' in navigator) {
     }
 
     // ==============================================
-    // 🔥 UNREGISTER SEMUA SW LAMA
+    // 🔥 LANGKAH 2: UNREGISTER SEMUA SW LAMA
     // ==============================================
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
         registrations.forEach(function(reg) {
@@ -979,16 +978,26 @@ if ('serviceWorker' in navigator) {
     });
 
     // ==============================================
-    // ✅ REGISTER SW BARU
+    // ✅ LANGKAH 3: REGISTER SW BARU
     // ==============================================
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('sw.js')
             .then(function(reg) {
                 console.log('✅ Zila Food SW registered');
+
+                // Auto update
                 reg.update();
+
+                // Kalau ada waiting, paksa activate
                 if (reg.waiting) {
                     reg.waiting.postMessage('SKIP_WAITING');
                 }
+
+                // Update setiap 1 jam
+                setInterval(function() {
+                    reg.update();
+                    console.log('🔄 Checking for SW update...');
+                }, 60 * 60 * 1000);
             })
             .catch(function(err) {
                 console.log('❌ SW failed:', err);
@@ -996,15 +1005,17 @@ if ('serviceWorker' in navigator) {
     });
 
     // ==============================================
-    // 🔄 AUTO RELOAD BILA SW BARU AKTIF
+    // 🔄 LANGKAH 4: AUTO RELOAD BILA SW BARU AKTIF
     // ==============================================
     var refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', function() {
         if (!refreshing) {
             refreshing = true;
+            console.log('🔄 New SW activated, reloading...');
             window.location.reload();
         }
     });
+
 }
 
 </script>
