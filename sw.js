@@ -1,11 +1,13 @@
 // ==============================================
-// 🍽️ ZILA FOOD - SERVICE WORKER
-// STABIL UNTUK IPHONE iOS & ANDROID
+// 🍽️ ZILA FOOD - SERVICE WORKER v4
+// GABUNGAN: Nasi Lemak Kak Zila + Azura AI
+// STABIL UNTUK iPhone iOS & ANDROID
+// AUTO PADAM CACHE LAMA + PRECACHE + CACHE FIRST
 // ==============================================
 
-const CACHE_NAME = 'zila-food-v2';
+const CACHE_NAME = 'zila-food-v4'; // 🔥 Tukar version bila deploy perubahan besar
 
-// Senarai fail wajib di-cache
+// Senarai fail wajib di-cache (precache)
 const FILES_TO_CACHE = [
     './',
     './index.html',
@@ -22,28 +24,33 @@ const FILES_TO_CACHE = [
 // 📦 INSTALL - Pre-cache semua fail penting
 // ==============================================
 self.addEventListener('install', (event) => {
-    console.log('🍽️ Zila Food SW: Install & Pre-cache');
+    console.log('🍽️ Zila Food SW v4: Install & Pre-cache');
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            console.log('📦 Pre-caching essential files...');
-            return cache.addAll(FILES_TO_CACHE).catch((err) => {
+        caches.open(CACHE_NAME)
+            .then((cache) => {
+                console.log('📦 Pre-caching essential files...');
+                return cache.addAll(FILES_TO_CACHE);
+            })
+            .then(() => {
+                console.log('✅ Pre-cache siap!');
+                return self.skipWaiting(); // Aktifkan segera
+            })
+            .catch((err) => {
                 console.warn('⚠️ Some files failed to pre-cache:', err);
-            });
-        })
+            })
     );
-    self.skipWaiting();
 });
 
 // ==============================================
-// 🚀 ACTIVATE - Buang cache versi lama sahaja
+// 🚀 ACTIVATE - BUANG CACHE VERSI LAMA SAHAJA
 // ==============================================
 self.addEventListener('activate', (event) => {
-    console.log('🍽️ Zila Food SW: Activate');
+    console.log('⚡ Zila Food SW v4: Activate - Cleaning old caches');
     event.waitUntil(
         caches.keys().then((keys) => {
             return Promise.all(
                 keys.map((key) => {
-                    // HANYA buang cache yang BUKAN versi semasa
+                    // 🔥 HANYA buang cache yang BUKAN versi semasa
                     if (key !== CACHE_NAME) {
                         console.log('🗑️ Old cache deleted:', key);
                         return caches.delete(key);
@@ -51,27 +58,39 @@ self.addEventListener('activate', (event) => {
                 })
             );
         }).then(() => {
-            console.log('✅ Activation complete');
+            console.log('✅ Zila Food SW v4 sedia!');
+            // 🔥 Ambil alih semua tabs
             return self.clients.claim();
         })
     );
 });
 
 // ==============================================
-// 🔄 FETCH - Cache first, network fallback
-// PENTING untuk iPhone: guna cache dulu
+// 🔄 FETCH - Cache First, Network Fallback
+// PENTING: Stabil untuk iPhone & Android
+// Skip cache untuk API calls
 // ==============================================
 self.addEventListener('fetch', (event) => {
+    const url = event.request.url;
+
+    // 🔥 JANGAN cache API calls (untuk future use)
+    if (url.includes('googleapis.com') ||
+        url.includes('workers.dev') ||
+        url.includes('gateway.pinata.cloud') ||
+        url.includes('api.')) {
+        return; // Biar browser handle biasa
+    }
+
     // Skip untuk permintaan bukan GET
     if (event.request.method !== 'GET') return;
 
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            // Guna cache dulu (stabil untuk iPhone)
+            // ✅ Guna cache dulu (stabil untuk iPhone & offline)
             if (cachedResponse) {
-                // Update cache di background
+                // Update cache di background (background sync)
                 fetch(event.request).then((networkResponse) => {
-                    if (networkResponse.status === 200) {
+                    if (networkResponse && networkResponse.status === 200) {
                         caches.open(CACHE_NAME).then((cache) => {
                             cache.put(event.request, networkResponse.clone());
                         });
@@ -84,28 +103,29 @@ self.addEventListener('fetch', (event) => {
 
             // Tiada cache — cuba network
             return fetch(event.request).then((networkResponse) => {
-                if (networkResponse.status === 200) {
-                    const clone = networkResponse.clone();
+                // Cache response untuk guna kemudian
+                if (networkResponse && networkResponse.status === 200) {
+                    const responseClone = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, clone);
+                        cache.put(event.request, responseClone);
                     });
                 }
                 return networkResponse;
             }).catch(() => {
                 // Network & cache kedua-dua gagal
-                // Return index.html untuk permintaan navigate
+                // Return index.html untuk permintaan navigate (SPA fallback)
                 if (event.request.mode === 'navigate') {
                     return caches.match('./index.html');
                 }
                 // Return response kosong untuk aset lain
-                return new Response('Offline', { status: 503 });
+                return new Response('Offline - Sila sambung internet', { status: 503 });
             });
         })
     );
 });
 
 // ==============================================
-// ⚡ MESSAGE - Skip waiting untuk update
+// ⚡ MESSAGE - Skip waiting untuk update manual
 // ==============================================
 self.addEventListener('message', (event) => {
     if (event.data === 'SKIP_WAITING') {
