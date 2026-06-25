@@ -951,7 +951,7 @@ body {
     kemasKiniUI();
 
 // ==========================================
-// 📌 PWA Service Worker - ZERO STORAGE v6 📌 
+// 📌 PWA Service Worker - BUNUH SEMUA v6!!!
 // ==========================================
 if ('serviceWorker' in navigator) {
 
@@ -968,11 +968,10 @@ if ('serviceWorker' in navigator) {
     }
 
     // ==============================================
-    // 🔥 LANGKAH 2: BUNUH localStorage (KECUALI troli)
+    // 🔥 LANGKAH 2: BUNUH localStorage (TERMASUK TROLI)
     // ==============================================
-    // Komen 2 baris bawah kalau nak kekalkan troli
-       localStorage.clear();
-       console.log('🗑️ localStorage cleared');
+    localStorage.clear();
+    console.log('🗑️ localStorage cleared (termasuk troli)');
 
     // ==============================================
     // 🔥 LANGKAH 3: BUNUH sessionStorage
@@ -990,7 +989,6 @@ if ('serviceWorker' in navigator) {
         var cookie = cookies[i];
         var eqPos = cookie.indexOf('=');
         var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-        // Padam dengan semua kombinasi path & domain
         document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
         document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + window.location.hostname;
@@ -998,7 +996,19 @@ if ('serviceWorker' in navigator) {
     console.log('🗑️ Cookies cleared');
 
     // ==============================================
-    // 🔥 LANGKAH 5: UNREGISTER SEMUA SW LAMA
+    // 🔥 LANGKAH 5: BUNUH IndexedDB
+    // ==============================================
+    if ('indexedDB' in window) {
+        indexedDB.databases().then(function(dbs) {
+            dbs.forEach(function(db) {
+                indexedDB.deleteDatabase(db.name);
+                console.log('🗑️ IndexedDB deleted:', db.name);
+            });
+        }).catch(function() {});
+    }
+
+    // ==============================================
+    // 🔥 LANGKAH 6: UNREGISTER SEMUA SW LAMA
     // ==============================================
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
         registrations.forEach(function(reg) {
@@ -1008,7 +1018,7 @@ if ('serviceWorker' in navigator) {
     });
 
     // ==============================================
-    // ✅ LANGKAH 6: REGISTER SW BARU
+    // ✅ LANGKAH 7: REGISTER SW BARU
     // ==============================================
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('sw.js')
@@ -1025,7 +1035,7 @@ if ('serviceWorker' in navigator) {
     });
 
     // ==============================================
-    // 🔄 LANGKAH 7: AUTO RELOAD
+    // 🔄 LANGKAH 8: AUTO RELOAD
     // ==============================================
     var refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', function() {
@@ -1036,7 +1046,7 @@ if ('serviceWorker' in navigator) {
     });
 
 }
-    
+
 </script>
 </body>
 </html>
