@@ -950,44 +950,55 @@ body {
 
     kemasKiniUI();
 
-// =========================================
-// 📌  PWA Service Worker - AUTO PADAM CACHE + FORCE UPDATE v5
-// 📌 ZILA FOOD - PWA SERVICE WORKER v5
-// AUTO PADAM CACHE + COOKIES + FORCE UPDATE
-// =========================================
+// ==========================================
+// 📌 PWA Service Worker - ZERO STORAGE v6 📌 
+// ==========================================
 if ('serviceWorker' in navigator) {
 
     // ==============================================
-    // 🔥 LANGKAH 1: AUTO PADAM SEMUA CACHE
+    // 🔥 LANGKAH 1: BUNUH SEMUA CACHE
     // ==============================================
     if ('caches' in window) {
         caches.keys().then(function(keys) {
             keys.forEach(function(key) {
-                console.log('🗑️ Cache deleted:', key);
                 caches.delete(key);
+                console.log('🗑️ Cache deleted:', key);
             });
         });
     }
 
     // ==============================================
-    // 🔥 LANGKAH 2: AUTO PADAM COOKIES & STORAGE
+    // 🔥 LANGKAH 2: BUNUH localStorage (KECUALI troli)
     // ==============================================
-    // Clear sessionStorage
+    // Komen 2 baris bawah kalau nak kekalkan troli
+       localStorage.clear();
+       console.log('🗑️ localStorage cleared');
+
+    // ==============================================
+    // 🔥 LANGKAH 3: BUNUH sessionStorage
+    // ==============================================
     if ('sessionStorage' in window) {
         sessionStorage.clear();
-        console.log('🗑️ SessionStorage cleared');
+        console.log('🗑️ sessionStorage cleared');
     }
 
-    // Clear cookies (untuk domain sendiri)
-    document.cookie.split(';').forEach(function(cookie) {
-        var name = cookie.split('=')[0].trim();
+    // ==============================================
+    // 🔥 LANGKAH 4: BUNUH SEMUA COOKIES
+    // ==============================================
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        var eqPos = cookie.indexOf('=');
+        var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+        // Padam dengan semua kombinasi path & domain
         document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
-    });
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + window.location.hostname;
+    }
     console.log('🗑️ Cookies cleared');
 
     // ==============================================
-    // 🔥 LANGKAH 3: UNREGISTER SEMUA SW LAMA
+    // 🔥 LANGKAH 5: UNREGISTER SEMUA SW LAMA
     // ==============================================
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
         registrations.forEach(function(reg) {
@@ -997,37 +1008,16 @@ if ('serviceWorker' in navigator) {
     });
 
     // ==============================================
-    // ✅ LANGKAH 4: REGISTER SW BARU
+    // ✅ LANGKAH 6: REGISTER SW BARU
     // ==============================================
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('sw.js')
             .then(function(reg) {
-                console.log('✅ Zila Food SW v5 registered');
-
-                // Auto update segera
+                console.log('✅ Zila Food SW v6 registered');
                 reg.update();
-
-                // Paksa activate kalau ada waiting
                 if (reg.waiting) {
                     reg.waiting.postMessage('SKIP_WAITING');
                 }
-
-                // Update setiap 30 minit (lebih kerap)
-                setInterval(function() {
-                    reg.update();
-                    console.log('🔄 Checking for SW update...');
-                }, 30 * 60 * 1000); // 30 minit
-
-                // Listen for new SW
-                reg.addEventListener('updatefound', function() {
-                    var newWorker = reg.installing;
-                    newWorker.addEventListener('statechange', function() {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('🆕 New SW found, activating...');
-                            newWorker.postMessage('SKIP_WAITING');
-                        }
-                    });
-                });
             })
             .catch(function(err) {
                 console.log('❌ SW failed:', err);
@@ -1035,19 +1025,18 @@ if ('serviceWorker' in navigator) {
     });
 
     // ==============================================
-    // 🔄 LANGKAH 5: AUTO RELOAD BILA SW BARU AKTIF
+    // 🔄 LANGKAH 7: AUTO RELOAD
     // ==============================================
     var refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', function() {
         if (!refreshing) {
             refreshing = true;
-            console.log('🔄 New SW activated, reloading...');
             window.location.reload();
         }
     });
 
 }
-
+    
 </script>
 </body>
 </html>
