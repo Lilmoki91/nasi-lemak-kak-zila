@@ -930,12 +930,12 @@ body {
     window.location.href = 'https://wa.me/601111640776'; 
 }
 
-//📌 fungsi buka maps gps
+    //📌 fungsi buka maps gps
     function bukaMaps() { 
     window.location.href = 'https://maps.google.com/?q=PPR+Sri+Pantai+Blok+102'; 
 }
 
-//📌 fungsi buka wave
+    //📌 fungsi buka wave
     function bukaWaze() { 
     window.location.href = 'https://waze.com/ul?q=PPR+Sri+Pantai+Blok+102'; 
 }
@@ -950,13 +950,15 @@ body {
 
     kemasKiniUI();
 
-// ========================================
-// 📌 PWA Service Worker - AUTO PADAM CACHE + FORCE UPDATE 📌
+// =========================================
+// 📌  PWA Service Worker - AUTO PADAM CACHE + FORCE UPDATE v5
+// 📌 ZILA FOOD - PWA SERVICE WORKER v5
+// AUTO PADAM CACHE + COOKIES + FORCE UPDATE
 // =========================================
 if ('serviceWorker' in navigator) {
 
     // ==============================================
-    // 🔥 LANGKAH 1: AUTO PADAM SEMUA CACHE LAMA
+    // 🔥 LANGKAH 1: AUTO PADAM SEMUA CACHE
     // ==============================================
     if ('caches' in window) {
         caches.keys().then(function(keys) {
@@ -968,7 +970,24 @@ if ('serviceWorker' in navigator) {
     }
 
     // ==============================================
-    // 🔥 LANGKAH 2: UNREGISTER SEMUA SW LAMA
+    // 🔥 LANGKAH 2: AUTO PADAM COOKIES & STORAGE
+    // ==============================================
+    // Clear sessionStorage
+    if ('sessionStorage' in window) {
+        sessionStorage.clear();
+        console.log('🗑️ SessionStorage cleared');
+    }
+
+    // Clear cookies (untuk domain sendiri)
+    document.cookie.split(';').forEach(function(cookie) {
+        var name = cookie.split('=')[0].trim();
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
+    });
+    console.log('🗑️ Cookies cleared');
+
+    // ==============================================
+    // 🔥 LANGKAH 3: UNREGISTER SEMUA SW LAMA
     // ==============================================
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
         registrations.forEach(function(reg) {
@@ -978,26 +997,37 @@ if ('serviceWorker' in navigator) {
     });
 
     // ==============================================
-    // ✅ LANGKAH 3: REGISTER SW BARU
+    // ✅ LANGKAH 4: REGISTER SW BARU
     // ==============================================
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('sw.js')
             .then(function(reg) {
-                console.log('✅ Zila Food SW registered');
+                console.log('✅ Zila Food SW v5 registered');
 
-                // Auto update
+                // Auto update segera
                 reg.update();
 
-                // Kalau ada waiting, paksa activate
+                // Paksa activate kalau ada waiting
                 if (reg.waiting) {
                     reg.waiting.postMessage('SKIP_WAITING');
                 }
 
-                // Update setiap 1 jam
+                // Update setiap 30 minit (lebih kerap)
                 setInterval(function() {
                     reg.update();
                     console.log('🔄 Checking for SW update...');
-                }, 60 * 60 * 1000);
+                }, 30 * 60 * 1000); // 30 minit
+
+                // Listen for new SW
+                reg.addEventListener('updatefound', function() {
+                    var newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', function() {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('🆕 New SW found, activating...');
+                            newWorker.postMessage('SKIP_WAITING');
+                        }
+                    });
+                });
             })
             .catch(function(err) {
                 console.log('❌ SW failed:', err);
@@ -1005,7 +1035,7 @@ if ('serviceWorker' in navigator) {
     });
 
     // ==============================================
-    // 🔄 LANGKAH 4: AUTO RELOAD BILA SW BARU AKTIF
+    // 🔄 LANGKAH 5: AUTO RELOAD BILA SW BARU AKTIF
     // ==============================================
     var refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', function() {
