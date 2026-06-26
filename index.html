@@ -1288,29 +1288,34 @@ function shareWhatsApp() {
 // 📘 FACEBOOK
 // ==============================================
 function shareFacebook() {
+    const teks = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n${SHARE_URL}`;
     const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     
     if (isMobile) {
-        // Mobile: Cuba buka Facebook App
-        const fbAppUrl = `fb://facewebmodal/f?href=${encodeURIComponent(SHARE_URL)}`;
-        const startTime = Date.now();
-        
-        window.location.href = fbAppUrl;
-        
-        // Fallback: Kalau FB App tak wujud, buka browser
-        setTimeout(function() {
-            if (Date.now() - startTime < 2000) {
+        // Mobile: Copy teks + URL, lepas tu buka Facebook
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(SHARE_URL).then(function() {
+                toast('📋 URL disalin! Buka Facebook App dan paste.');
+                // Cuba buka Facebook App
+                window.location.href = 'fb://composer';
+                
+                // Fallback: buka Facebook web
+                setTimeout(function() {
+                    window.open(fbUrl, '_blank');
+                }, 1000);
+            }).catch(function() {
                 window.open(fbUrl, '_blank');
-            }
-        }, 1500);
-        
+            });
+        } else {
+            window.open(fbUrl, '_blank');
+        }
     } else {
-        // Desktop: Buka popup window
+        // Desktop: Buka Facebook Share Dialog
         window.open(
             fbUrl,
             'facebook-share-dialog',
-            'width=626,height=436,toolbar=0,menubar=0,location=0,status=0'
+            'width=626,height=436,toolbar=0,menubar=0'
         );
     }
 }
