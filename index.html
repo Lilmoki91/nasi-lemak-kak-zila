@@ -1269,56 +1269,105 @@ body {
     }
 
 // ==============================================
-// 📤 FUNGSI SHARE SOCIAL MEDIA
+// 📤 FUNGSI SHARE SOCIAL MEDIA (LENGKAP)
 // ==============================================
 
 const SHARE_URL = 'https://nasi-lemak-kak-zila.pages.dev';
 const SHARE_TITLE = '🍽️ Nasi Lemak Kak Zila';
 const SHARE_TEXT = 'Jom singgah! Nasi Lemak sedap di PPR Sri Pantai Blok 102 Kuala Lumpur. Buka 7:30PM - 12AM (Jumaat-Rabu). Tutup Khamis.';
 
+// ==============================================
+// 💬 WHATSAPP
+// ==============================================
 function shareWhatsApp() {
     const teks = `${SHARE_TITLE}%0A%0A${SHARE_TEXT}%0A%0A🔗 ${SHARE_URL}`;
     window.open(`https://wa.me/?text=${teks}`, '_blank');
 }
 
+// ==============================================
+// 📘 FACEBOOK
+// ==============================================
 function shareFacebook() {
-    const teks = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n🔗 ${SHARE_URL}`;
-    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`;
-    
-    // Check kalau mobile
+    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     
-    if (isMobile && navigator.share) {
-        // Mobile - guna native share
+    if (isMobile) {
+        // Mobile: Cuba buka Facebook App
+        const fbAppUrl = `fb://facewebmodal/f?href=${encodeURIComponent(SHARE_URL)}`;
+        const startTime = Date.now();
+        
+        window.location.href = fbAppUrl;
+        
+        // Fallback: Kalau FB App tak wujud, buka browser
+        setTimeout(function() {
+            if (Date.now() - startTime < 2000) {
+                window.open(fbUrl, '_blank');
+            }
+        }, 1500);
+        
+    } else {
+        // Desktop: Buka popup window
+        window.open(
+            fbUrl,
+            'facebook-share-dialog',
+            'width=626,height=436,toolbar=0,menubar=0,location=0,status=0'
+        );
+    }
+}
+
+// ==============================================
+// ✈️ TELEGRAM
+// ==============================================
+function shareTelegram() {
+    const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`;
+    window.open(tgUrl, '_blank');
+}
+
+// ==============================================
+// 📋 COPY LINK
+// ==============================================
+function shareCopyLink() {
+    const teks = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n🔗 ${SHARE_URL}`;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(teks).then(function() {
+            toast('📋 Pautan & teks disalin ke clipboard!');
+        }).catch(function() {
+            toast('📤 Sila kongsi manual');
+        });
+    } else {
+        // Fallback untuk older browser
+        const textarea = document.createElement('textarea');
+        textarea.value = teks;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        toast('📋 Pautan & teks disalin!');
+    }
+}
+
+// ==============================================
+// 📱 NATIVE SHARE (Mobile only)
+// ==============================================
+function shareNative() {
+    if (navigator.share) {
         navigator.share({
             title: SHARE_TITLE,
             text: SHARE_TEXT,
             url: SHARE_URL
-        }).catch(() => {
-            // Fallback - buka Facebook page
-            window.open(fbShareUrl, '_blank');
+        }).then(function() {
+            toast('✅ Berjaya dikongsi!');
+        }).catch(function(error) {
+            if (error.name !== 'AbortError') {
+                toast('📤 Sila kongsi manual');
+            }
         });
     } else {
-        // Desktop - terus buka Facebook
-        window.open(fbShareUrl, '_blank');
+        shareCopyLink();
     }
-}
-
-    function shareTelegram() {
-    window.open(`https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`, '_blank');
-}
-
-// Fungsi bantu - copy ke clipboard
-function copyToClipboard(teks) {
-    navigator.clipboard.writeText(teks).then(() => {
-        toast('📋 Teks disalin! Buka Facebook dan paste.');
-        // Buka Facebook
-        setTimeout(() => {
-            window.open('https://www.facebook.com/sharer/sharer.php', '_blank');
-        }, 500);
-    }).catch(() => {
-        toast('📤 Sila kongsi manual ke Facebook');
-    });
 }
 
 </script>
