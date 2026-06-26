@@ -31,22 +31,19 @@
 <meta property="og:title" content="🍽️ Nasi Lemak Kak Zila">
 <meta property="og:description" content="Order Nasi Lemak sedap di PPR Sri Pantai Blok 102 Kuala Lumpur. Buka 7:30PM - 12AM (Jumaat-Rabu). Tutup Khamis.">
 <meta property="og:image" content="https://raw.githubusercontent.com/Lilmoki91/nasi-lemak-kak-zila/refs/heads/main/media/og-image.jpg">
-<meta property="og:image:secure_url" content="https://raw.githubusercontent.com/Lilmoki91/nasi-lemak-kak-zila/refs/heads/main/media/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:alt" content="Nasi Lemak Kak Zila">
 <meta property="og:url" content="https://nasi-lemak-kak-zila.pages.dev">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ms_MY">
 <meta property="og:site_name" content="Zila Food">
 
-<!-- Twitter Card (Untuk Telegram) -->
+<!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="🍽️ Nasi Lemak Kak Zila">
-<meta name="twitter:description" content="Order Nasi Lemak sedap di PPR Sri Pantai Blok 102 Kuala Lumpur. Buka 7:30PM - 12AM (Jumaat-Rabu). Tutup Khamis.">
+<meta name="twitter:description" content="Order Nasi Lemak sedap di PPR Sri Pantai Blok 102 Kuala Lumpur.">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/Lilmoki91/nasi-lemak-kak-zila/refs/heads/main/media/og-image.jpg">
-<meta name="twitter:image:alt" content="Nasi Lemak Kak Zila">
 
 <style>
 :root {
@@ -1272,10 +1269,9 @@ body {
     }
 
 // ==============================================
-// 📤 FUNGSI SHARE SOCIAL MEDIA (DENGAN GAMBAR)
+// 📤 FUNGSI SHARE SOCIAL MEDIA
 // ==============================================
 
-const SHARE_IMAGE = 'https://raw.githubusercontent.com/Lilmoki91/nasi-lemak-kak-zila/refs/heads/main/media/og-image.jpg';
 const SHARE_URL = 'https://nasi-lemak-kak-zila.pages.dev';
 const SHARE_TITLE = '🍽️ Nasi Lemak Kak Zila';
 const SHARE_TEXT = 'Jom singgah! Nasi Lemak sedap di PPR Sri Pantai Blok 102 Kuala Lumpur. Buka 7:30PM - 12AM (Jumaat-Rabu). Tutup Khamis.';
@@ -1286,19 +1282,13 @@ function shareWhatsApp() {
 }
 
 function shareFacebook() {
-    // Facebook akan auto-detect Open Graph meta tags dari page
-    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`;
+    // Facebook guna quote + URL
+    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}&quote=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`;
     window.open(fbUrl, '_blank');
 }
 
 function shareTelegram() {
-    // Telegram guna format simple - hanya hantar URL
-    // Telegram akan auto-fetch Open Graph meta tags dari page
-    const teks = `${SHARE_TITLE}\n\n${SHARE_TEXT}`;
-    const encodedText = encodeURIComponent(teks);
-    const encodedUrl = encodeURIComponent(SHARE_URL);
-    
-    window.open(`https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`, '_blank');
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`, '_blank');
 }
 
 </script>
