@@ -1288,44 +1288,68 @@ function shareWhatsApp() {
 // 📘 FACEBOOK
 // ==============================================
 function shareFacebook() {
-    const teksPenuh = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n🔗 ${SHARE_URL}`;
-    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`;
+    const teksPenuh = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n${SHARE_URL}`;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     
     if (isMobile) {
-        // Mobile: Copy teks penuh + URL, lepas tu buka Facebook
+        // Copy teks penuh
         if (navigator.clipboard) {
             navigator.clipboard.writeText(teksPenuh).then(function() {
-                toast('📋 Teks & URL disalin! Buka Facebook App dan paste.');
-                
-                // Cuba buka Facebook App
-                window.location.href = 'fb://composer';
-                
-                // Fallback: buka Facebook web
-                setTimeout(function() {
-                    window.open(fbUrl, '_blank');
-                }, 1000);
-            }).catch(function() {
-                window.open(fbUrl, '_blank');
-            });
-        } else {
-            window.open(fbUrl, '_blank');
-        }
-    } else {
-        // Desktop: Copy teks penuh + buka Facebook
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(teksPenuh).then(function() {
-                toast('📋 Teks & URL disalin! Paste di Facebook.');
+                toast('📋 Teks & URL disalin!');
+                showFacebookGuide();
             });
         }
         
-        // Buka Facebook Share Dialog
+        // Cuba buka Facebook App
+        setTimeout(function() {
+            window.location.href = 'fb://composer';
+            
+            // Fallback: buka Facebook web
+            setTimeout(function() {
+                window.open('https://m.facebook.com/composer', '_blank');
+            }, 1500);
+        }, 500);
+        
+    } else {
+        // Desktop: Buka Facebook
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(teksPenuh).then(function() {
+                toast('📋 Teks & URL disalin!');
+                showFacebookGuide();
+            });
+        }
+        
         window.open(
-            fbUrl,
-            'facebook-share-dialog',
-            'width=626,height=436,toolbar=0,menubar=0'
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`,
+            'facebook-share',
+            'width=626,height=436'
         );
     }
+}
+
+// Popup panduan
+function showFacebookGuide() {
+    const guide = document.createElement('div');
+    guide.style.cssText = `
+        position: fixed; bottom: 80px; left: 20px; right: 20px;
+        background: #1877F2; color: #fff; padding: 16px;
+        border-radius: 16px; z-index: 999; text-align: center;
+        font-size: 0.85rem; font-weight: 600;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    `;
+    guide.innerHTML = `
+        📘 <strong>Facebook sudah dibuka!</strong><br><br>
+        📋 Teks & URL dah disalin<br><br>
+        <span style="background:#fff; color:#1877F2; padding:4px 12px; border-radius:8px;">
+            ${SHARE_URL}
+        </span><br><br>
+        ⚠️ <strong>PENTING:</strong> Taip URL ini di hujung post<br>
+        untuk keluarkan kad preview
+    `;
+    guide.onclick = function() { guide.remove(); };
+    document.body.appendChild(guide);
+    
+    setTimeout(function() { guide.remove(); }, 8000);
 }
 
 // ==============================================
