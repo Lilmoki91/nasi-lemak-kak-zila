@@ -1282,13 +1282,40 @@ function shareWhatsApp() {
 }
 
 function shareFacebook() {
-    // Facebook guna quote + URL
-    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}&quote=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`;
-    window.open(fbUrl, '_blank');
+    // Cara paling direct - copy teks, user paste sendiri
+    const teks = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n🔗 ${SHARE_URL}`;
+    
+    // Cuba native share dulu (mobile)
+    if (navigator.share) {
+        navigator.share({
+            title: SHARE_TITLE,
+            text: teks,
+            url: SHARE_URL
+        }).catch(() => {
+            // Fallback - copy clipboard
+            copyToClipboard(teks);
+        });
+    } else {
+        // Desktop - copy clipboard
+        copyToClipboard(teks);
+    }
 }
 
 function shareTelegram() {
     window.open(`https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`, '_blank');
+}
+
+// Fungsi bantu - copy ke clipboard
+function copyToClipboard(teks) {
+    navigator.clipboard.writeText(teks).then(() => {
+        toast('📋 Teks disalin! Buka Facebook dan paste.');
+        // Buka Facebook
+        setTimeout(() => {
+            window.open('https://www.facebook.com/sharer/sharer.php', '_blank');
+        }, 500);
+    }).catch(() => {
+        toast('📤 Sila kongsi manual ke Facebook');
+    });
 }
 
 </script>
