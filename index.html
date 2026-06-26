@@ -1075,7 +1075,7 @@ body {
         if (!kedaiBuka()) { toast(mesejTutup()); tunjukPopup(); return; }
         const items = Object.entries(troli);
         if (items.length === 0) { toast('🛒 Troli kosong!'); return; }
-        let teks = 'Assalamualaikum, saya nak order:%0A%0A';
+        let teks = 'Assalamualaikum/ Salam Sejahtera Puan Zila, saya nak order:%0A%0A';
         items.forEach(([id, q]) => {
             const m = menu.find(x => x.id === parseInt(id));
             if (m) teks += `${m.nama} x${q} = RM${(m.harga * q).toFixed(2)}%0A`;
