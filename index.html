@@ -1288,15 +1288,16 @@ function shareWhatsApp() {
 // 📘 FACEBOOK
 // ==============================================
 function shareFacebook() {
-    const teks = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n${SHARE_URL}`;
+    const teksPenuh = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n🔗 ${SHARE_URL}`;
     const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     
     if (isMobile) {
-        // Mobile: Copy teks + URL, lepas tu buka Facebook
+        // Mobile: Copy teks penuh + URL, lepas tu buka Facebook
         if (navigator.clipboard) {
-            navigator.clipboard.writeText(SHARE_URL).then(function() {
-                toast('📋 URL disalin! Buka Facebook App dan paste.');
+            navigator.clipboard.writeText(teksPenuh).then(function() {
+                toast('📋 Teks & URL disalin! Buka Facebook App dan paste.');
+                
                 // Cuba buka Facebook App
                 window.location.href = 'fb://composer';
                 
@@ -1311,7 +1312,14 @@ function shareFacebook() {
             window.open(fbUrl, '_blank');
         }
     } else {
-        // Desktop: Buka Facebook Share Dialog
+        // Desktop: Copy teks penuh + buka Facebook
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(teksPenuh).then(function() {
+                toast('📋 Teks & URL disalin! Paste di Facebook.');
+            });
+        }
+        
+        // Buka Facebook Share Dialog
         window.open(
             fbUrl,
             'facebook-share-dialog',
