@@ -1282,26 +1282,29 @@ function shareWhatsApp() {
 }
 
 function shareFacebook() {
-    // Cara paling direct - copy teks, user paste sendiri
     const teks = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n🔗 ${SHARE_URL}`;
+    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`;
     
-    // Cuba native share dulu (mobile)
-    if (navigator.share) {
+    // Check kalau mobile
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    
+    if (isMobile && navigator.share) {
+        // Mobile - guna native share
         navigator.share({
             title: SHARE_TITLE,
-            text: teks,
+            text: SHARE_TEXT,
             url: SHARE_URL
         }).catch(() => {
-            // Fallback - copy clipboard
-            copyToClipboard(teks);
+            // Fallback - buka Facebook page
+            window.open(fbShareUrl, '_blank');
         });
     } else {
-        // Desktop - copy clipboard
-        copyToClipboard(teks);
+        // Desktop - terus buka Facebook
+        window.open(fbShareUrl, '_blank');
     }
 }
 
-function shareTelegram() {
+    function shareTelegram() {
     window.open(`https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`, '_blank');
 }
 
