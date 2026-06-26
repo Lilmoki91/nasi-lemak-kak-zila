@@ -1287,19 +1287,18 @@ function shareWhatsApp() {
 // ==============================================
 // 📘 FACEBOOK
 // ==============================================
-function shareFacebook() {
-    const teksPenuh = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n${SHARE_URL}`;
+    function shareFacebook() {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     
+    // Copy URL sahaja (bukan teks penuh) - supaya kad preview keluar
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(SHARE_URL).then(function() {
+            toast('📋 URL disalin!');
+            showFacebookGuide();
+        });
+    }
+    
     if (isMobile) {
-        // Copy teks penuh
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(teksPenuh).then(function() {
-                toast('📋 Teks & URL disalin!');
-                showFacebookGuide();
-            });
-        }
-        
         // Cuba buka Facebook App
         setTimeout(function() {
             window.location.href = 'fb://composer';
@@ -1311,14 +1310,7 @@ function shareFacebook() {
         }, 500);
         
     } else {
-        // Desktop: Buka Facebook
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(teksPenuh).then(function() {
-                toast('📋 Teks & URL disalin!');
-                showFacebookGuide();
-            });
-        }
-        
+        // Desktop: Buka Facebook Share Dialog
         window.open(
             `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`,
             'facebook-share',
@@ -1327,39 +1319,51 @@ function shareFacebook() {
     }
 }
 
-// Popup panduan
+// Popup panduan cantik
 function showFacebookGuide() {
     const guide = document.createElement('div');
     guide.style.cssText = `
-        position: fixed; bottom: 80px; left: 20px; right: 20px;
-        background: #1877F2; color: #fff; padding: 16px;
-        border-radius: 16px; z-index: 999; text-align: center;
-        font-size: 0.85rem; font-weight: 600;
+        position: fixed;
+        bottom: 80px;
+        left: 20px;
+        right: 20px;
+        background: #1877F2;
+        color: #fff;
+        padding: 20px;
+        border-radius: 20px;
+        z-index: 999;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 600;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        animation: popIn 0.3s ease;
     `;
     guide.innerHTML = `
-        📘 <strong>Facebook sudah dibuka!</strong><br><br>
-        📋 Teks & URL dah disalin<br><br>
-        <span style="background:#fff; color:#1877F2; padding:4px 12px; border-radius:8px;">
+        <div style="font-size:2rem; margin-bottom:8px;">📘</div>
+        <strong style="font-size:1rem;">Facebook Dibuka!</strong><br><br>
+        <span style="font-size:0.8rem; opacity:0.9;">📋 URL dah disalin</span><br><br>
+        <span style="background:#fff; color:#1877F2; padding:6px 14px; border-radius:10px; font-size:0.75rem; display:inline-block; margin:8px 0;">
             ${SHARE_URL}
         </span><br><br>
-        ⚠️ <strong>PENTING:</strong> Taip URL ini di hujung post<br>
-        untuk keluarkan kad preview
+        <span style="font-size:0.75rem; opacity:0.9;">⚡ <strong>Paste URL ini</strong> di post Facebook<br>untuk keluarkan kad preview</span><br>
+        <span style="font-size:0.65rem; opacity:0.7;">👇 Tekan untuk tutup</span>
     `;
-    guide.onclick = function() { guide.remove(); };
+    guide.onclick = function() { 
+        guide.style.opacity = '0';
+        guide.style.transition = 'opacity 0.3s';
+        setTimeout(function() { guide.remove(); }, 300);
+    };
     document.body.appendChild(guide);
     
-    setTimeout(function() { guide.remove(); }, 8000);
+    // Auto tutup selepas 8 saat
+    setTimeout(function() { 
+        if (document.body.contains(guide)) {
+            guide.style.opacity = '0';
+            guide.style.transition = 'opacity 0.3s';
+            setTimeout(function() { guide.remove(); }, 300);
+        }
+    }, 8000);
 }
-
-// ==============================================
-// ✈️ TELEGRAM
-// ==============================================
-function shareTelegram() {
-    const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`;
-    window.open(tgUrl, '_blank');
-}
-
 // ==============================================
 // 📋 COPY LINK
 // ==============================================
