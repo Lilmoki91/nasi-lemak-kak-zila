@@ -1285,6 +1285,13 @@ function shareWhatsApp() {
 }
 
 // ==============================================
+// ✈️ TELEGRAM
+// ==============================================
+function shareTelegram() {
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`, '_blank');
+}
+    
+// ==============================================
 // 📘 FACEBOOK
 // ==============================================
     function shareFacebook() {
