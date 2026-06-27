@@ -1,4 +1,6 @@
 import os
+import json
+from datetime import datetime, timezone, timedelta
 from google import genai
 from google.genai import types
 
@@ -9,90 +11,160 @@ class SitiAI:
         )
         self.model = "gemma-4-26b-a4b-it"
         
+        # Load persona & prompt dari JSON
+        with open('persona.json', 'r', encoding='utf-8') as f:
+            self.persona = json.load(f)
+        with open('prompt.json', 'r', encoding='utf-8') as f:
+            self.prompt = json.load(f)
+
+    # ==============================================
+    # 🕐 MASA MALAYSIA (GMT+8)
+    # ==============================================
+    def get_malaysia_time(self):
+        tz = timezone(timedelta(hours=8))
+        now = datetime.now(tz)
+        hari_list = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"]
+        bulan_list = ["", "Januari", "Februari", "Mac", "April", "Mei", "Jun",
+                      "Julai", "Ogos", "September", "Oktober", "November", "Disember"]
+        
+        return {
+            "jam_12h": now.strftime("%I:%M %p"),
+            "jam_24h": now.strftime("%H:%M"),
+            "hari": hari_list[now.weekday()],
+            "hari_num": now.weekday(),
+            "tarikh_penuh": f"{now.day} {bulan_list[now.month]} {now.year}",
+            "waktu_penuh": f"{hari_list[now.weekday()]}, {now.day} {bulan_list[now.month]} {now.year}, {now.strftime('%I:%M %p')}"
+        }
+
+    # ==============================================
+    # 🟢 STATUS KEDAI (BUKA/TUTUP)
+    # ==============================================
+    def check_kedai_status(self):
+        masa = self.get_malaysia_time()
+        hari_num = masa["hari_num"]
+        now = datetime.now(timezone(timedelta(hours=8)))
+        current_minutes = now.hour * 60 + now.minute
+        
+        # Waktu operasi
+        buka_jam = 19  # 7 PM
+        buka_minit = 30
+        buka = buka_jam * 60 + buka_minit  # 19:30 = 1170 minit
+        tutup = 24 * 60  # 00:00 = 1440 minit
+        
+        # Check hari tutup (Khamis = 4)
+        if hari_num == 4:
+            return {
+                "status": "TUTUP",
+                "sebab": "Hari Khamis — kedai tutup sepanjang hari",
+                "next_buka": "Esok Jumaat, 7:30 PM"
+            }
+        
+        # Check waktu operasi
+        if current_minutes >= buka and current_minutes < tutup:
+            baki = tutup - current_minutes
+            jam = baki // 60
+            minit = baki % 60
+            return {
+                "status": "BUKA",
+                "sebab": f"Kedai sedang beroperasi. Tutup dalam {jam}j {minit}m lagi.",
+                "baki": f"{jam} jam {minit} minit"
+            }
+        
+        # Belum buka
+        if current_minutes < buka:
+            baki = buka - current_minutes
+            jam = baki // 60
+            minit = baki % 60
+            return {
+                "status": "TUTUP",
+                "sebab": f"Kedai belum dibuka. Akan dibuka dalam {jam}j {minit}m lagi.",
+                "next_buka": f"Hari ini, 7:30 PM (dalam {jam} jam {minit} minit)"
+            }
+        
+        # Dah tutup
+        return {
+            "status": "TUTUP",
+            "sebab": "Kedai sudah tutup untuk hari ini.",
+            "next_buka": "Esok, 7:30 PM"
+        }
+
+    # ==============================================
+    # 📝 SYSTEM PROMPT LENGKAP
+    # ==============================================
     def get_system_prompt(self):
-        return """Anda adalah SITI AI, pembantu maya untuk Zila Food (Nasi Lemak Kak Zila).
-Persona: Wanita Melayu 28 tahun, mesra, sopan, ceria, profesional.
-Inspirasi: Chef Wan.
+        masa = self.get_malaysia_time()
+        status = self.check_kedai_status()
+        
+        # Bina senarai menu dari persona.json
+        menu_list = ""
+        for item in self.persona['menu']:
+            menu_list += f"- **{item['nama']}** — *{item['desc']}* — `RM{item['harga']:.2f}`\n"
+        
+        # Gabung semua
+        return f"""Anda adalah {self.persona['watak']['nama']}, {self.persona['watak']['peranan']}.
+Persona: {self.persona['watak']['jantina']} Melayu {self.persona['watak']['umur']} tahun, {', '.join(self.persona['watak']['gaya'])}.
+Inspirasi: {self.persona['watak']['inspirasi']}.
+Identiti: {self.persona['watak']['identiti']}
 
-⚠️ PERATURAN FORMAT MARKDOWN (WAJIB DIIKUT):
-1. GUNAKAN Markdown untuk format response anda
-2. Bold: **Nasi Lemak Berlauk** untuk nama menu
-3. Italic: *sedap* untuk penekanan
-4. Bullet: Gunakan - untuk senarai
-5. Nombor: Gunakan 1. 2. 3. untuk langkah
-6. Heading: Gunakan ## untuk tajuk bahagian
-7. Code: Gunakan `RM5` untuk harga
-8. JANGAN guna Markdown yang terlalu kompleks
-9. GUNAKAN line break (baris kosong) antara bahagian
+⏰ **DATA MASA TERKINI (WAJIB GUNA):**
+- Sekarang: {masa['waktu_penuh']}
+- Hari: {masa['hari']}
+- Tarikh: {masa['tarikh_penuh']}
+- Status Kedai: **{status['status']}**
+- Sebab: {status['sebab']}
 
-CONTOH FORMAT YANG BETUL:
+📍 **DATA KEDAI:**
+- Nama: {self.persona['kedai']['nama']}
+- Lokasi: {self.persona['kedai']['lokasi']}
+- Google Maps: {self.persona['kedai']['google_maps']}
+- Waze: {self.persona['kedai']['waze']}
+- WhatsApp: {self.persona['kedai']['whatsapp']}
+- Waktu Operasi: {self.persona['kedai']['waktu_buka']} - {self.persona['kedai']['waktu_tutup']}
+- Hari Operasi: {', '.join(self.persona['kedai']['hari_operasi'])}
+- Hari Tutup: {', '.join(self.persona['kedai']['hari_tutup'])}
 
-## 🍗 Menu Kami
+🍗 **MENU:**
+{menu_list}
 
-**Nasi Lemak Berlauk** — *Ayam goreng, telur, sambal* — `RM5`
+🎤 **GAYA BAHASA:**
+- Sapaan: {self.persona['watak']['sapaan']}
+- Catchphrase: {', '.join(self.persona['watak']['catchphrase'])}
+- Nada: {self.persona['watak']['gaya'][0]}, {self.persona['watak']['gaya'][1]}
 
-- **Nasi Lemak Biasa** — *klasik dengan sambal* — `RM2`
-- **Kaaripuf** — *rangup & sedap* — `RM1`
-- **Air Balang** — *minuman segar* — `RM1`
+📋 **FORMAT MARKDOWN (WAJIB):**
+- Bold: **nama menu** untuk nama menu
+- Italic: *sedap* untuk penekanan
+- Code: `RM5` untuk harga
+- Bullet: - untuk senarai
+- Heading: ## untuk tajuk
+- Link: [teks](url) untuk pautan
 
----
+✅ **WAJIB:**
+{chr(10).join(['- ' + x for x in self.prompt['wajib']])}
 
-📍 **Lokasi:** PPR Sri Pantai Blok 102, Kuala Lumpur
-⏰ **Waktu:** `7:30PM - 12AM` (Jumaat-Rabu)
-❌ **Tutup:** Setiap Khamis
-📲 **WhatsApp:** [011-1164 0776](https://wa.me/601111640776)
+🚫 **LARANGAN:**
+{chr(10).join(['- ' + x for x in self.prompt['larangan']])}"""
 
----
-
-DATA KEDAI:
-- Nama: Zila Food (Nasi Lemak Kak Zila)
-- Lokasi: PPR Sri Pantai Blok 102, Kuala Lumpur
-- Waktu: 7:30PM - 12:00AM (Jumaat - Rabu)
-- Tutup: Setiap Khamis
-- WhatsApp: 011-1164 0776
-
-MENU:
-1. Nasi Lemak Berlauk - Ayam goreng, telur, sambal, ikan bilis - RM5.00
-2. Nasi Lemak Biasa - Nasi lemak klasik dengan sambal - RM2.00
-3. Kaaripuf - Karipap rangup & sedap - RM1.00
-4. Air Balang - Minuman segar menyegarkan - RM1.00
-
-GAYA BAHASA:
-- Sapaan: Assalamualaikum / Hai!
-- Catchphrase: "Marvelous!", "Senang je!", "Beautiful!" (sekali sahaja)
-- Sopan, mesra, ceria 
-- Akhiri dengan doa atau ucapan positif
-
-JANGAN:
-- Jangan sebut perkara selain Zila Food
-- Jangan guna persona lain
-- Jangan beri maklumat palsu
-- Jangan guna terlalu banyak emoji (sederhana sahaja)
-- Jangan ulang catchphrase lebih dari 2 kali"""
-
+    # ==============================================
+    # 💬 CHAT FUNCTION
+    # ==============================================
     def chat(self, user_message, history=None):
-        # ==============================================
-        # 🔥 BLOCK INPUT TERLALU PANJANG
-        # ==============================================
         MAX_INPUT = 500
         
         if len(user_message) > MAX_INPUT:
-            return "⚠️ *Maaf, mesej anda terlalu panjang!* Sila ringkaskan kepada " + str(MAX_INPUT) + " aksara atau kurang. Senang je! 😊"
+            return f"⚠️ *Maaf, mesej terlalu panjang!* Sila ringkaskan kepada {MAX_INPUT} aksara. Senang je! 😊"
         
-        # Check spam (mesej sama berulang)
         if history:
             last_user_msgs = [msg["text"] for msg in history if msg["role"] == "user"]
             if last_user_msgs and last_user_msgs[-1] == user_message:
                 return "🤔 *Anda dah hantar mesej yang sama.* Ada soalan lain yang Siti boleh bantu? 😊"
         
-        # Default history
         if history is None:
             history = []
         
-        # Bina conversation
         contents = []
         
-        # System prompt
+        # System prompt dengan semua data
         contents.append(
             types.Content(
                 role="user",
@@ -100,7 +172,6 @@ JANGAN:
             )
         )
         
-        # History
         for msg in history:
             contents.append(
                 types.Content(
@@ -109,7 +180,6 @@ JANGAN:
                 )
             )
         
-        # Current message
         contents.append(
             types.Content(
                 role="user",
@@ -117,7 +187,6 @@ JANGAN:
             )
         )
         
-        # Generate response
         generate_content_config = types.GenerateContentConfig(
             top_p=0.45,
             temperature=0.7,
