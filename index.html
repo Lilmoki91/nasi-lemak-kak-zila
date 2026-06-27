@@ -1632,7 +1632,6 @@ function shareNative() {
         shareCopyLink();
     }
 }
-
 </script>
 <script>
 // ==============================================
@@ -1640,6 +1639,7 @@ function shareNative() {
 // ==============================================
 
 let sessionId = 'user-' + Date.now();
+let isSitiReplying = false; // 🔒 Flag lock
 
 function toggleChat() {
     document.getElementById('sitiChatBox').classList.toggle('show');
@@ -1673,10 +1673,8 @@ function playReceiveSound() {
         o.connect(g);
         g.connect(ctx.destination);
         o.type = 'sine';
-        // Nada pertama
         o.frequency.setValueAtTime(1000, ctx.currentTime);
         o.frequency.setValueAtTime(1200, ctx.currentTime + 0.08);
-        // Nada kedua
         o.frequency.setValueAtTime(1400, ctx.currentTime + 0.16);
         g.gain.setValueAtTime(0.3, ctx.currentTime);
         g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
@@ -1685,14 +1683,28 @@ function playReceiveSound() {
     } catch(e) {}
 }
 </script>
-
 <script>
 async function sendMessage() {
+    // 🔒 JANGAN HANTAR KALAU SITI TENGAH BALAS
+    if (isSitiReplying) {
+        toast('⏳ Siti AI sedang menulis... Sila tunggu.');
+        return;
+    }
+    
     const input = document.getElementById('sitiInput');
     const message = input.value.trim();
     if (!message) return;
     
     const body = document.getElementById('sitiChatBody');
+    const sendBtn = document.querySelector('.siti-chat-input button');
+    
+    // 🔒 DISABLE BUTTON & INPUT
+    isSitiReplying = true;
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = '0.5';
+    sendBtn.style.pointerEvents = 'none';
+    input.disabled = true;
+    input.style.background = '#F3F4F6';
     
     // User message
     body.innerHTML += `<div class="chat-bubble chat-user">${escapeHTML(message)}</div>`;
@@ -1752,9 +1764,17 @@ async function sendMessage() {
         // 🔥 AUTO SCROLL SELEPAS ERROR
         body.scrollTop = body.scrollHeight;
     }
+    
+    // 🔓 ENABLE SEMULA
+    isSitiReplying = false;
+    sendBtn.disabled = false;
+    sendBtn.style.opacity = '1';
+    sendBtn.style.pointerEvents = 'auto';
+    input.disabled = false;
+    input.style.background = '#fff';
+    
 }
 </script>
-
 <script>
 // ==============================================
 // 🎨 FORMAT AI RESPONSE (SUPPORT MARKDOWN)
