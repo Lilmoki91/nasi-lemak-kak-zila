@@ -71,6 +71,21 @@ JANGAN:
 - Jangan ulang catchphrase lebih dari 2 kali"""
 
     def chat(self, user_message, history=None):
+        # ==============================================
+        # 🔥 BLOCK INPUT TERLALU PANJANG
+        # ==============================================
+        MAX_INPUT = 500
+        
+        if len(user_message) > MAX_INPUT:
+            return "⚠️ *Maaf, mesej anda terlalu panjang!* Sila ringkaskan kepada " + str(MAX_INPUT) + " aksara atau kurang. Senang je! 😊"
+        
+        # Check spam (mesej sama berulang)
+        if history:
+            last_user_msgs = [msg["text"] for msg in history if msg["role"] == "user"]
+            if last_user_msgs and last_user_msgs[-1] == user_message:
+                return "🤔 *Anda dah hantar mesej yang sama.* Ada soalan lain yang Siti boleh bantu? 😊"
+        
+        # Default history
         if history is None:
             history = []
         
