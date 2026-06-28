@@ -23,19 +23,33 @@ class SitiAI:
     def get_malaysia_time(self):
         tz = timezone(timedelta(hours=8))
         now = datetime.now(tz)
-        hari_list = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"]
+    
+        # Mapping English → BM
+        hari_map = {
+            "Monday": "Isnin",
+            "Tuesday": "Selasa",
+            "Wednesday": "Rabu",
+            "Thursday": "Khamis",
+            "Friday": "Jumaat",
+            "Saturday": "Sabtu",
+            "Sunday": "Ahad"
+        }
+    
         bulan_list = ["", "Januari", "Februari", "Mac", "April", "Mei", "Jun",
-                      "Julai", "Ogos", "September", "Oktober", "November", "Disember"]
-        
+                  "Julai", "Ogos", "September", "Oktober", "November", "Disember"]
+    
+        hari_english = now.strftime("%A")
+        hari_bm = hari_map[hari_english]
+    
         return {
             "jam_12h": now.strftime("%I:%M %p"),
             "jam_24h": now.strftime("%H:%M"),
-            "hari": hari_list[now.weekday()],
+            "hari": hari_bm,
+            "hari_english": hari_english,  # Untuk debugging
             "hari_num": now.weekday(),
             "tarikh_penuh": f"{now.day} {bulan_list[now.month]} {now.year}",
-            "waktu_penuh": f"{hari_list[now.weekday()]}, {now.day} {bulan_list[now.month]} {now.year}, {now.strftime('%I:%M %p')}"
+            "waktu_penuh": f"{hari_bm}, {now.day} {bulan_list[now.month]} {now.year}, {now.strftime('%I:%M %p')}"
         }
-
     # ==============================================
     # 🟢 STATUS KEDAI (BUKA/TUTUP)
     # ==============================================
