@@ -35,9 +35,7 @@ class SitiAI:
             "Sunday": "Ahad"
         }
     
-        bulan_list = ["", "Januari", "Februari", "Mac", "April", "Mei", "Jun",
-                  "Julai", "Ogos", "September", "Oktober", "November", "Disember"]
-    
+        bulan_list = ["", "Januari", "Februari", "Mac", "April", "Mei", "Jun", "Julai", "Ogos", "September", "Oktober", "November", "Disember"]
         hari_english = now.strftime("%A")
         hari_bm = hari_map[hari_english]
     
