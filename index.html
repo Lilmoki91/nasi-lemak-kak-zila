@@ -2164,41 +2164,47 @@ document.getElementById('sitiChatBody').addEventListener('wheel', function(e) {
 </script>
 <script>
 // ==============================================
-// 👑 ADMIN LOGIN
+// 🔐 ADMIN LOGIN + PANEL ADMIN - LENGKAP
 // ==============================================
 
 let adminToken = null;
+let currentMode = 'AUTO';
+let currentMemo = '';
 
-// Check kalau dah login sebelum ni
+// Check token lama
 try {
     adminToken = localStorage.getItem('zila_admin_token');
 } catch(e) {}
 
+// ==============================================
+// 🔐 LOGIN POPUP
+// ==============================================
 function bukaAdminLogin() {
-    // Kalau dah login — terus buka panel
     if (adminToken) {
         verifyTokenBukaPanel();
         return;
     }
-    
-    // Tunjuk popup login
     tunjukPopupLogin();
 }
 
 function tunjukPopupLogin() {
+    const old = document.getElementById('adminLoginPopup');
+    if (old) old.remove();
+    
     const popup = document.createElement('div');
+    popup.id = 'adminLoginPopup';
     popup.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.8); z-index: 9999;
-        display: flex; align-items: center; justify-content: center;
+        position:fixed; top:0; left:0; width:100%; height:100%;
+        background:rgba(0,0,0,0.85); z-index:99999;
+        display:flex; align-items:center; justify-content:center;
     `;
     popup.innerHTML = `
         <div style="background:#fff; border-radius:20px; padding:24px; width:90%; max-width:360px; text-align:center;">
             <div style="font-size:2.5rem; margin-bottom:8px;">🔐</div>
             <h3 style="margin-bottom:4px; color:#2E7D32;">Admin Zila Food</h3>
-            <p style="font-size:0.8rem; color:#6B7280; margin-bottom:16px;">Sila masukkan nombor & password</p>
+            <p style="font-size:0.8rem; color:#6B7280; margin-bottom:16px;">Masukkan nombor & kata laluan</p>
             
-            <input type="tel" id="adminPhone" placeholder="No. WhatsApp (01111640776)" 
+            <input type="tel" id="adminPhone" placeholder="No. WhatsApp" 
                    style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; margin-bottom:10px; font-family:inherit; font-size:0.9rem;">
             
             <input type="password" id="adminPass" placeholder="Kata Laluan" 
@@ -2211,7 +2217,7 @@ function tunjukPopupLogin() {
                 🔓 Masuk
             </button>
             
-            <button onclick="this.parentElement.parentElement.remove()" 
+            <button onclick="document.getElementById('adminLoginPopup').remove()" 
                     style="width:100%; padding:10px; background:transparent; border:none; color:#999; margin-top:8px; font-size:0.8rem; cursor:pointer;">
                 ❌ Batal
             </button>
@@ -2231,6 +2237,10 @@ async function loginAdmin() {
         return;
     }
     
+    msg.textContent = '⏳ Sedang login...';
+    msg.style.color = '#6B7280';
+    msg.style.display = 'block';
+    
     try {
         const res = await fetch('https://zila-food.onrender.com/api/admin/login', {
             method: 'POST',
@@ -2244,21 +2254,20 @@ async function loginAdmin() {
             adminToken = data.token;
             try { localStorage.setItem('zila_admin_token', adminToken); } catch(e) {}
             
+            msg.textContent = '✅ Berjaya!';
             msg.style.color = '#2E7D32';
-            msg.textContent = '✅ Berjaya! Membuka panel...';
-            msg.style.display = 'block';
             
             setTimeout(() => {
-                document.querySelector('.popup-overlay')?.remove();
+                document.getElementById('adminLoginPopup').remove();
                 bukaPanelAdmin();
-            }, 1000);
+            }, 800);
         } else {
             msg.textContent = data.message;
-            msg.style.display = 'block';
+            msg.style.color = '#EF4444';
         }
     } catch(e) {
         msg.textContent = '❌ Gagal sambung ke server.';
-        msg.style.display = 'block';
+        msg.style.color = '#EF4444';
     }
 }
 
@@ -2284,20 +2293,9 @@ async function verifyTokenBukaPanel() {
     }
 }
 
-function bukaPanelAdmin() {
-    // Coming soon — Panel Admin UI
-    toast('🔓 Panel Admin akan dibuka! (Coming soon)');
-    // Nanti sambung dengan panel admin UI
-}    
-</script>
-<script>
 // ==============================================
-// 🎛️ PANEL ADMIN FUNCTIONS
+// 🎛️ PANEL ADMIN
 // ==============================================
-
-let currentMode = 'AUTO';
-let currentMemo = '';
-
 function bukaPanelAdmin() {
     document.getElementById('adminOverlay').classList.add('show');
     loadCurrentSettings();
@@ -2310,18 +2308,13 @@ function tutupPanelAdmin() {
 function setMode(mode) {
     currentMode = mode;
     
-    // Update UI
     document.querySelectorAll('.admin-toggle').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1).toLowerCase()).classList.add('active');
+    const modeMap = { 'AUTO': 'modeAuto', 'BUKA': 'modeBuka', 'TUTUP': 'modeTutup' };
+    const activeBtn = document.getElementById(modeMap[mode]);
+    if (activeBtn) activeBtn.classList.add('active');
     
-    // Update preview
-    if (mode === 'TUTUP') {
-        document.getElementById('infoStatus').textContent = '🔴 Tutup';
-    } else if (mode === 'BUKA') {
-        document.getElementById('infoStatus').textContent = '🟢 Buka';
-    } else {
-        document.getElementById('infoStatus').textContent = '🔄 Auto (Ikut Jadual)';
-    }
+    const statusMap = { 'AUTO': '🔄 Auto (Ikut Jadual)', 'BUKA': '🟢 Buka (Override)', 'TUTUP': '🔴 Tutup (Override)' };
+    document.getElementById('infoStatus').textContent = statusMap[mode];
     document.getElementById('infoMode').textContent = mode;
 }
 
@@ -2335,7 +2328,14 @@ async function loadCurrentSettings() {
         
         setMode(currentMode);
         document.getElementById('adminMemo').value = currentMemo;
-        document.getElementById('infoUpdate').textContent = data.last_updated || '-';
+        document.getElementById('infoUpdate').textContent = data.last_updated 
+            ? new Date(data.last_updated).toLocaleString('ms-MY') 
+            : 'Belum pernah';
+        
+        if (currentMemo) {
+            document.getElementById('memoPreview').style.display = 'block';
+            document.getElementById('memoPreviewText').textContent = currentMemo;
+        }
     } catch(e) {
         document.getElementById('infoUpdate').textContent = 'Gagal load';
     }
@@ -2352,15 +2352,15 @@ async function simpanSettings() {
         return;
     }
     
+    msg.textContent = '⏳ Menyimpan...';
+    msg.style.color = '#6B7280';
+    msg.style.display = 'block';
+    
     try {
         const res = await fetch('https://zila-food.onrender.com/api/admin/settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                token: adminToken,
-                mode: currentMode,
-                memo: memo
-            })
+            body: JSON.stringify({ token: adminToken, mode: currentMode, memo: memo })
         });
         
         const data = await res.json();
@@ -2368,24 +2368,20 @@ async function simpanSettings() {
         if (data.success) {
             msg.textContent = '✅ Tetapan disimpan!';
             msg.style.color = '#2E7D32';
-            msg.style.display = 'block';
-            
             document.getElementById('infoUpdate').textContent = new Date().toLocaleString('ms-MY');
-            
-            setTimeout(() => {
-                msg.style.display = 'none';
-                tutupPanelAdmin();
-                toast('✅ Tetapan dikemaskini!');
-            }, 1500);
+            if (memo) {
+                document.getElementById('memoPreview').style.display = 'block';
+                document.getElementById('memoPreviewText').textContent = memo;
+            }
+            fetchOwnerSettings();
+            setTimeout(() => { msg.style.display = 'none'; toast('✅ Tetapan dikemaskini!'); }, 1500);
         } else {
             msg.textContent = data.message || '❌ Gagal simpan.';
             msg.style.color = '#EF4444';
-            msg.style.display = 'block';
         }
     } catch(e) {
         msg.textContent = '❌ Gagal sambung ke server.';
         msg.style.color = '#EF4444';
-        msg.style.display = 'block';
     }
 }
 
@@ -2394,7 +2390,36 @@ function logoutAdmin() {
     try { localStorage.removeItem('zila_admin_token'); } catch(e) {}
     tutupPanelAdmin();
     toast('👋 Logout berjaya!');
-}    
+}
+
+// ==============================================
+// 📋 FETCH OWNER SETTINGS (WebApps memo)
+// ==============================================
+async function fetchOwnerSettings() {
+    try {
+        const res = await fetch('https://zila-food.onrender.com/api/admin/settings');
+        const data = await res.json();
+        const memoEl = document.getElementById('ownerMemo');
+        if (!memoEl) return;
+        
+        if (data.mode === 'TUTUP') {
+            memoEl.textContent = '🔴 ' + (data.memo || 'Kedai ditutup buat sementara.');
+            memoEl.style.display = 'block';
+            memoEl.style.background = '#FEF2F2';
+            memoEl.style.color = '#DC2626';
+        } else if (data.mode === 'BUKA') {
+            memoEl.textContent = '🟢 ' + (data.memo || 'Kedai dibuka khas!');
+            memoEl.style.display = 'block';
+            memoEl.style.background = '#F0FDF4';
+            memoEl.style.color = '#16A34A';
+        } else {
+            memoEl.style.display = 'none';
+        }
+    } catch(e) {}
+}
+
+fetchOwnerSettings();
+setInterval(fetchOwnerSettings, 5 * 60 * 1000);
 </script>
 </body>
 </html>
