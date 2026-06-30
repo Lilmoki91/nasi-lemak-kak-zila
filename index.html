@@ -1666,36 +1666,58 @@ body {
         clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2500);
     }
 
-    // ==============================================
-    // 🔴 CHECK WAKTU OPERASI + HARI KHAMIS
-    // ==============================================
-    function isKhamis() {
-        return new Date().getDay() === 4;
-    }
+// ==============================================
+// 🔴 CHECK WAKTU OPERASI + HARI KHAMIS + OWNER OVERRIDE
+// ==============================================
 
-    function isWaktuOperasi() {
-        const now = new Date();
-        const hour = now.getHours();
-        const minute = now.getMinutes();
-        const currentTime = hour * 60 + minute;
-        const buka = 19 * 60;  // 7:00 PM = 1140 minit
-        const tutup = 24 * 60; // 12:00 AM = 1440 minit
-        return currentTime >= buka && currentTime < tutup;
-    }
+let ownerMode = 'AUTO'; // Default
 
-    function kedaiBuka() {
-        if (isKhamis()) return false;
-        if (!isWaktuOperasi()) return false;
-        return true;
+// 🔥 FETCH OWNER SETTINGS
+async function checkOwnerMode() {
+    try {
+        const res = await fetch('https://zila-food.onrender.com/api/admin/settings');
+        const data = await res.json();
+        ownerMode = data.mode || 'AUTO';
+    } catch(e) {
+        ownerMode = 'AUTO';
     }
+}
 
-    function mesejTutup() {
-        if (isKhamis()) return '🔴 Kedai Tutup Hari Khamis';
-        if (!isWaktuOperasi()) return '🕐 Kedai Dibuka 7:00 PM - 12:00 AM';
-        return '';
-    }
+function isKhamis() {
+    return new Date().getDay() === 4;
+}
 
-    function blockTroli() {
+function isWaktuOperasi() {
+    const now = new Date();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const currentTime = hour * 60 + minute;
+    const buka = 19 * 60 + 30;  // 7:30 PM
+    const tutup = 24 * 60;       // 12:00 AM
+    return currentTime >= buka && currentTime < tutup;
+}
+
+function kedaiBuka() {
+    // 🔥 CHECK OWNER OVERRIDE DULU!
+    if (ownerMode === 'BUKA') return true;    // Owner buka — terus boleh order!
+    if (ownerMode === 'TUTUP') return false;  // Owner tutup — block terus!
+    
+    // AUTO — guna jadual biasa
+    if (isKhamis()) return false;
+    if (!isWaktuOperasi()) return false;
+    return true;
+}
+
+function mesejTutup() {
+    if (ownerMode === 'TUTUP') return '🔴 Kedai Ditutup Oleh Owner';
+    if (ownerMode === 'BUKA') return '🟢 Kedai Dibuka Khas!';
+    if (isKhamis()) return '🔴 Kedai Tutup Hari Khamis';
+    if (!isWaktuOperasi()) return '🕐 Kedai Dibuka 7:30 PM - 12:00 AM';
+    return '';
+}
+
+function blockTroli() {
+    if (!kedaiBuka()) {
         document.querySelectorAll('.add-btn').forEach(function(btn) {
             btn.style.pointerEvents = 'none';
             btn.style.opacity = '0.5';
@@ -1709,49 +1731,75 @@ body {
             btn.style.background = '#EF4444';
             btn.textContent = '🔒 ' + mesejTutup();
         });
-    }
-
-    function tunjukPopup() {
-        const popup = document.getElementById('popupTutup');
-        const popupTitle = popup.querySelector('.popup-title');
-        const popupText = popup.querySelector('.popup-text');
+    } else {
+        // 🔓 UNLOCK — kalau kedai buka
+        document.querySelectorAll('.add-btn').forEach(function(btn) {
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+            btn.style.background = '#2E7D32';
+            btn.textContent = '+';
+        });
         
-        if (isKhamis()) {
-            popupTitle.textContent = '🔴 Maaf, Kedai Tutup Hari Khamis';
-            popupText.innerHTML = '📅 Setiap hari <strong>Khamis</strong> kedai kami berehat.<br>🕐 Operasi seperti biasa pada <strong>Jumaat - Rabu</strong><br>7:30 PM - 12:00 AM';
-        } else if (!isWaktuOperasi()) {
-            popupTitle.textContent = '🕐 Kedai Belum Dibuka';
-            popupText.innerHTML = '🕐 Waktu operasi kami:<br><strong>7:00 PM - 12:00 AM</strong><br><br>📅 <strong>Jumaat - Rabu</strong><br>❌ Tutup Hari Khamis<br><br>Sila datang semula pada waktu operasi. Terima kasih! 🥰';
-        }
-        
-        popup.classList.add('show');
+        document.querySelectorAll('.cta-wa').forEach(function(btn) {
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+            btn.style.background = '#25D366';
+            btn.textContent = '💬 Order WhatsApp';
+        });
     }
+}
 
-    function tutupPopup() {
-        document.getElementById('popupTutup').classList.remove('show');
+function tunjukPopup() {
+    const popup = document.getElementById('popupTutup');
+    const popupTitle = popup.querySelector('.popup-title');
+    const popupText = popup.querySelector('.popup-text');
+    
+    if (ownerMode === 'TUTUP') {
+        popupTitle.textContent = '🔴 Kedai Ditutup Oleh Owner';
+        popupText.innerHTML = 'Maaf, kedai sedang ditutup oleh owner.<br><br>Sila datang lagi nanti. Terima kasih! 😊';
+    } else if (isKhamis()) {
+        popupTitle.textContent = '🔴 Maaf, Kedai Tutup Hari Khamis';
+        popupText.innerHTML = '📅 Setiap hari <strong>Khamis</strong> kedai kami berehat.<br>🕐 Operasi seperti biasa pada <strong>Jumaat - Rabu</strong><br>7:30 PM - 12:00 AM';
+    } else if (!isWaktuOperasi()) {
+        popupTitle.textContent = '🕐 Kedai Belum Dibuka';
+        popupText.innerHTML = '🕐 Waktu operasi kami:<br><strong>7:30 PM - 12:00 AM</strong><br><br>📅 <strong>Jumaat - Rabu</strong><br>❌ Tutup Hari Khamis<br><br>Sila datang semula pada waktu operasi. Terima kasih! 🥰';
     }
+    
+    popup.classList.add('show');
+}
 
-    // ==============================================
-    // 🚀 INIT
-    // ==============================================
-    function initCheck() {
-        if (!kedaiBuka()) {
-            blockTroli();
-            setTimeout(tunjukPopup, 1500);
-        }
+function tutupPopup() {
+    document.getElementById('popupTutup').classList.remove('show');
+}
+
+// ==============================================
+// 🚀 INIT
+// ==============================================
+async function initCheck() {
+    await checkOwnerMode(); // Fetch owner settings dulu
+    if (!kedaiBuka()) {
+        blockTroli();
+        setTimeout(tunjukPopup, 1500);
+    } else {
+        blockTroli(); // Unlock troli
     }
-
     kemasKiniUI();
-    initCheck();
+}
 
-    // Check setiap 15 minit
-    setInterval(function() {
-        if (!kedaiBuka()) {
-            blockTroli();
-            kemasKiniUI();
-        }
-    }, 15 * 60 * 1000);
+initCheck();
 
+// Check setiap 5 minit
+setInterval(async function() {
+    await checkOwnerMode();
+    if (!kedaiBuka()) {
+        blockTroli();
+        kemasKiniUI();
+    } else {
+        blockTroli(); // Unlock
+        kemasKiniUI();
+    }
+}, 5 * 60 * 1000);
+    
     // ==============================================
     // 📌 PWA KILL SWITCH v6
     // ==============================================
