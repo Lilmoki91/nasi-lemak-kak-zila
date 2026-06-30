@@ -1800,34 +1800,61 @@ setInterval(async function() {
     }
 }, 5 * 60 * 1000);
     
-    // ==============================================
-    // 📌 PWA KILL SWITCH v6
-    // ==============================================
-    if ('serviceWorker' in navigator) {
-        if ('caches' in window) {
-            caches.keys().then(function(keys) {
-                keys.forEach(function(key) { caches.delete(key); });
+// ==============================================
+// 📌 PWA KILL SWITCH v7 (SEIMBANG)
+// ==============================================
+if ('serviceWorker' in navigator) {
+    
+    // 🔥 HANYA BUANG CACHE LAMA (BUKAN SEMUA)
+    if ('caches' in window) {
+        caches.keys().then(function(keys) {
+            keys.forEach(function(key) {
+                // Hanya buang cache versi lama (bukan zila-food-v*)
+                if (key.includes('zila-food')) {
+                    console.log('🗑️ Cache lama dibuang:', key);
+                    caches.delete(key);
+                }
             });
-        }
-        if ('sessionStorage' in window) sessionStorage.clear();
-        document.cookie.split(';').forEach(function(cookie) {
-            var name = cookie.split('=')[0].trim();
-            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        });
-        navigator.serviceWorker.getRegistrations().then(function(regs) {
-            regs.forEach(function(reg) { reg.unregister(); });
-        });
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('sw.js').then(function(reg) {
-                reg.update();
-                if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
-            }).catch(function() {});
-        });
-        var rf = false;
-        navigator.serviceWorker.addEventListener('controllerchange', function() {
-            if (!rf) { rf = true; window.location.reload(); }
         });
     }
+    
+    // 🔥 UNREGISTER SW LAMA SAHAJA
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(reg) {
+            var scope = reg.scope;
+            // Hanya unregister kalau scope bukan current
+            if (scope.includes('nasi-lemak-kak-zila')) {
+                console.log('🔄 SW sedia ada — kekalkan');
+            } else {
+                reg.unregister();
+                console.log('🗑️ SW asing dibuang');
+            }
+        });
+    });
+    
+    // 🔥 REGISTER SW (JIKA BELUM ADA)
+    if (!navigator.serviceWorker.controller) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('sw.js').then(function(reg) {
+                console.log('✅ SW registered');
+                reg.update();
+                if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
+            }).catch(function(err) {
+                console.log('⚠️ SW registration failed:', err);
+            });
+        });
+    }
+    
+    // 🔥 AUTO RELOAD (HANYA BILA SW BARU)
+    var refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+        if (!refreshing) {
+            refreshing = true;
+            console.log('🔄 SW baru — reloading...');
+            window.location.reload();
+        }
+    });
+}
 
 // ==============================================
 // 📤 FUNGSI SHARE SOCIAL MEDIA (LENGKAP)
