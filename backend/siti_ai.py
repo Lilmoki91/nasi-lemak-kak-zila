@@ -64,65 +64,73 @@ class SitiAI:
     # 🟢 STATUS KEDAI (BUKA/TUTUP) — DENGAN OVERRIDE
     # ==============================================
     def check_kedai_status(self):
-        # 🔥 CHECK OWNER OVERRIDE DULU!
-        owner = self.load_owner_settings()
-        mode = owner.get("mode", "AUTO")
-        memo = owner.get("memo", "")
-        
-        if mode == "BUKA":
-            return {
-                "status": "BUKA",
-                "sebab": memo if memo else "Kedai dibuka khas oleh owner! 🟢",
-                "override": True
-            }
-        elif mode == "TUTUP":
-            return {
-                "status": "TUTUP",
-                "sebab": memo if memo else "Kedai ditutup oleh owner. 🔴",
-                "override": True
-            }
-        
-        # 🔥 AUTO — guna jadual biasa
-        masa = self.get_malaysia_time()
-        hari_num = masa["hari_num"]
-        now = datetime.now(timezone(timedelta(hours=8)))
-        current_minutes = now.hour * 60 + now.minute
-        
-        buka = 19 * 60 + 30  # 7:30 PM = 1170 minit
-        tutup = 24 * 60       # 12:00 AM = 1440 minit
-        
-        if hari_num == 4:
-            return {
-                "status": "TUTUP",
-                "sebab": "Hari Khamis — kedai tutup sepanjang hari",
-                "next_buka": "Esok Jumaat, 7:30 PM"
-            }
-        
-        if current_minutes >= buka and current_minutes < tutup:
-            baki = tutup - current_minutes
-            jam = baki // 60
-            minit = baki % 60
-            return {
-                "status": "BUKA",
-                "sebab": f"Kedai sedang beroperasi. Tutup dalam {jam}j {minit}m lagi.",
-                "baki": f"{jam} jam {minit} minit"
-            }
-        
-        if current_minutes < buka:
-            baki = buka - current_minutes
-            jam = baki // 60
-            minit = baki % 60
-            return {
-                "status": "TUTUP",
-                "sebab": f"Kedai belum dibuka. Akan dibuka dalam {jam}j {minit}m lagi.",
-                "next_buka": f"Hari ini, 7:30 PM (dalam {jam} jam {minit} minit)"
-            }
-        
+    # 🔥 CHECK OWNER OVERRIDE DULU!
+    owner = self.load_owner_settings()
+    mode = owner.get("mode", "AUTO")
+    memo = owner.get("memo", "")
+    
+    if mode == "BUKA":
         return {
+            "status": "BUKA",
+            "sebab": memo if memo else "Kedai dibuka khas oleh owner! 🟢",
+            "override": True,
+            "memo_owner": memo
+        }
+    elif mode == "TUTUP":
+        return {
+            "status": "TUTUP",
+            "sebab": memo if memo else "Kedai ditutup oleh owner. 🔴",
+            "override": True,
+            "memo_owner": memo
+        }
+    
+    # 🔥 AUTO — guna jadual biasa TAPI sertakan memo
+    masa = self.get_malaysia_time()
+    hari_num = masa["hari_num"]
+    now = datetime.now(timezone(timedelta(hours=8)))
+    current_minutes = now.hour * 60 + now.minute
+    
+    buka = 19 * 60 + 30
+    tutup = 24 * 60
+    
+    # Base info
+    if hari_num == 4:
+        result = {
+            "status": "TUTUP",
+            "sebab": "Hari Khamis — kedai tutup sepanjang hari",
+            "next_buka": "Esok Jumaat, 7:30 PM"
+        }
+    elif current_minutes >= buka and current_minutes < tutup:
+        baki = tutup - current_minutes
+        jam = baki // 60
+        minit = baki % 60
+        result = {
+            "status": "BUKA",
+            "sebab": f"Kedai sedang beroperasi. Tutup dalam {jam}j {minit}m lagi.",
+            "baki": f"{jam} jam {minit} minit"
+        }
+    elif current_minutes < buka:
+        baki = buka - current_minutes
+        jam = baki // 60
+        minit = baki % 60
+        result = {
+            "status": "TUTUP",
+            "sebab": f"Kedai belum dibuka. Akan dibuka dalam {jam}j {minit}m lagi.",
+            "next_buka": f"Hari ini, 7:30 PM (dalam {jam} jam {minit} minit)"
+        }
+    else:
+        result = {
             "status": "TUTUP",
             "sebab": "Kedai sudah tutup untuk hari ini.",
             "next_buka": "Esok, 7:30 PM"
         }
+    
+    # 🔥 TAMBAH MEMO OWNER (walaupun AUTO)
+    if memo:
+        result["memo_owner"] = memo
+        result["sebab"] = result["sebab"] + f" 📝 Notis: {memo}"
+    
+    return result
 
     # ==============================================
     # 📝 SYSTEM PROMPT LENGKAP
