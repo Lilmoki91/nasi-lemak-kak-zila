@@ -2496,7 +2496,7 @@ async function checkOwnerMode() {
 }
         
 // ==============================================
-// 📋 FETCH OWNER SETTINGS (DENGAN RETRY)
+// 📋 FETCH OWNER SETTINGS (PAPAR MEMO WALAUPUN AUTO)
 // ==============================================
 async function fetchOwnerSettings(retryCount = 0) {
     try {
@@ -2505,6 +2505,7 @@ async function fetchOwnerSettings(retryCount = 0) {
         const memoEl = document.getElementById('ownerMemo');
         if (!memoEl) return;
         
+        // 🔥 PAPAR MENGIKUT MODE
         if (data.mode === 'TUTUP') {
             memoEl.textContent = '🔴 ' + (data.memo || 'Kedai ditutup buat sementara.');
             memoEl.style.display = 'block';
@@ -2515,7 +2516,14 @@ async function fetchOwnerSettings(retryCount = 0) {
             memoEl.style.display = 'block';
             memoEl.style.background = '#F0FDF4';
             memoEl.style.color = '#16A34A';
+        } else if (data.memo) {
+            // 🔥 AUTO + ADA MEMO — PAPAR BIRU!
+            memoEl.textContent = 'ℹ️ ' + data.memo;
+            memoEl.style.display = 'block';
+            memoEl.style.background = '#EFF6FF';
+            memoEl.style.color = '#1E40AF';
         } else {
+            // AUTO + TIADA MEMO — SEMBUNYI
             memoEl.style.display = 'none';
         }
     } catch(e) {
