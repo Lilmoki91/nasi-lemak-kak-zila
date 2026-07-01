@@ -2422,6 +2422,7 @@ async function loadCurrentSettings() {
     }
 }
 
+// 📌 FUNCTION SIMPAN SETTING 📌
 async function simpanSettings() {
     const memo = document.getElementById('adminMemo').value.trim();
     const msg = document.getElementById('adminMsg');
@@ -2449,13 +2450,21 @@ async function simpanSettings() {
         if (data.success) {
             msg.textContent = '✅ Tetapan disimpan!';
             msg.style.color = '#2E7D32';
+            
+            // 🔥 AUTO REFRESH — sekali je!
+            fetchOwnerSettings();   // Refresh memo di webapps
+            kemasKiniUI();          // Refresh UI (troli, button)
+            checkOwnerMode();       // Update status kedai (ownerMode)
+            
             document.getElementById('infoUpdate').textContent = new Date().toLocaleString('ms-MY');
             if (memo) {
                 document.getElementById('memoPreview').style.display = 'block';
                 document.getElementById('memoPreviewText').textContent = memo;
             }
-            fetchOwnerSettings();
-            setTimeout(() => { msg.style.display = 'none'; toast('✅ Tetapan dikemaskini!'); }, 1500);
+            setTimeout(() => { 
+                msg.style.display = 'none'; 
+                toast('✅ Tetapan dikemaskini!'); 
+            }, 1500);
         } else {
             msg.textContent = data.message || '❌ Gagal simpan.';
             msg.style.color = '#EF4444';
@@ -2473,6 +2482,19 @@ function logoutAdmin() {
     toast('👋 Logout berjaya!');
 }
 
+// ==============================================
+// 🔄 CHECK OWNER MODE (UNTUK SIMPAN SETTING)
+// ==============================================
+async function checkOwnerMode() {
+    try {
+        const res = await fetch('https://zila-food.onrender.com/api/admin/settings');
+        const data = await res.json();
+        ownerMode = data.mode || 'AUTO';
+    } catch(e) {
+        ownerMode = 'AUTO';
+    }
+}
+        
 // ==============================================
 // 📋 FETCH OWNER SETTINGS (DENGAN RETRY)
 // ==============================================
@@ -2505,8 +2527,9 @@ async function fetchOwnerSettings(retryCount = 0) {
     }
 }
 
+// ⌛ INTERVAL 30 SECONDS 
 fetchOwnerSettings();
-setInterval(fetchOwnerSettings, 5 * 60 * 1000);
+setInterval(fetchOwnerSettings, 30 * 1000); // ← 30 SAAT!
 
 // ==============================================
 // 🍽️ KEMAS KINI UI (DENGAN LOADING)
