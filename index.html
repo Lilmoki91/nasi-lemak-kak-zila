@@ -2474,9 +2474,9 @@ function logoutAdmin() {
 }
 
 // ==============================================
-// 📋 FETCH OWNER SETTINGS (WebApps memo)
+// 📋 FETCH OWNER SETTINGS (DENGAN RETRY)
 // ==============================================
-async function fetchOwnerSettings() {
+async function fetchOwnerSettings(retryCount = 0) {
     try {
         const res = await fetch('https://zila-food.onrender.com/api/admin/settings');
         const data = await res.json();
@@ -2496,11 +2496,89 @@ async function fetchOwnerSettings() {
         } else {
             memoEl.style.display = 'none';
         }
-    } catch(e) {}
+    } catch(e) {
+        // 🔥 RETRY 3 KALI
+        if (retryCount < 3) {
+            console.log('Retry memo (' + (retryCount + 1) + '/3)...');
+            setTimeout(() => fetchOwnerSettings(retryCount + 1), 2000);
+        }
+    }
 }
 
 fetchOwnerSettings();
 setInterval(fetchOwnerSettings, 5 * 60 * 1000);
+
+// ==============================================
+// 🍽️ KEMAS KINI UI (DENGAN LOADING)
+// ==============================================
+function kemasKiniUI() {
+    const el = document.getElementById('menu-list');
+    
+    // 🔥 TUNJUK LOADING
+    if (el) {
+        el.innerHTML = '<div style="text-align:center; padding:20px; color:#6B7280;">⏳ Memuat menu...</div>';
+    }
+    
+    // Fetch menu dari backend
+    fetch('https://zila-food.onrender.com/api/menu')
+        .then(res => res.json())
+        .then(menuData => {
+            if (el) el.innerHTML = menuData.map(m => binaMenuHTML(m)).join('');
+        })
+        .catch(() => {
+            if (el) el.innerHTML = menu.map(m => binaMenuHTML(m)).join('');
+        });
+    
+    // Update cart UI
+    const cartEl = document.getElementById('cart-items');
+    const totalEl = document.getElementById('cart-total');
+    const priceEl = document.getElementById('total-price');
+    const clearBtn = document.getElementById('clear-btn');
+    const badge = document.getElementById('nav-badge');
+    const jml = jumlahItem();
+    
+    if (!kedaiBuka()) {
+        if (cartEl) cartEl.innerHTML = '<div style="text-align:center; padding:20px; color:#EF4444; font-weight:700;">' + mesejTutup() + '</div>';
+        if (totalEl) totalEl.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
+        if (badge) badge.style.display = 'none';
+    } else if (jml === 0) {
+        if (cartEl) cartEl.innerHTML = '<div class="cart-empty">Tiada item</div>';
+        if (totalEl) totalEl.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
+        if (badge) badge.style.display = 'none';
+    } else {
+        if (cartEl) {
+            cartEl.innerHTML = Object.entries(troli).map(([id, q]) => {
+                const m = menu.find(x => x.id === parseInt(id));
+                return m ? `<div class="cart-item-row">
+                    <span class="cart-item-name">${m.nama} <span class="cart-item-qty">x${q}</span></span>
+                    <span style="font-weight:600;">RM${(m.harga * q).toFixed(2)}</span>
+                </div>` : '';
+            }).join('');
+        }
+        if (totalEl) totalEl.style.display = 'flex';
+        if (priceEl) priceEl.textContent = `RM${jumlahHarga().toFixed(2)}`;
+        if (clearBtn) clearBtn.style.display = 'block';
+        if (badge) {
+            badge.style.display = 'flex';
+            badge.textContent = jml;
+        }
+    }
+    
+    // Update button order
+    const orderBtn = document.getElementById('order-btn');
+    if (orderBtn) {
+        if (!kedaiBuka()) {
+            orderBtn.textContent = '🔒 ' + mesejTutup();
+            orderBtn.style.background = '#EF4444';
+        } else {
+            orderBtn.textContent = '💬 Order WhatsApp';
+            orderBtn.style.background = '#25D366';
+        }
+    }
+}
+
 </script>
 </body>
 </html>
