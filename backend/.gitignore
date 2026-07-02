@@ -1,6 +1,28 @@
 # Environment variables
 .env
 
+# Firebase
+firebase-key.json
+firebase-*.json
+
 # Python
 __pycache__/
 *.pyc
+*.pyo
+
+# Owner settings (data sensitif)
+owner_settings.json
+
+# Admin auth
+admin_login/
+
+# Render
+.rendertmp/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
