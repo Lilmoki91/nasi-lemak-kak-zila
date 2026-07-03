@@ -47,14 +47,15 @@ body {
     width: 100%;
     max-width: 420px;
     background: var(--bg);
-    height: 100vh;           /* ✅ Fixed height */
-    height: 100dvh;          /* ✅ Dynamic viewport (mobile) */
+    height: 100vh;
+    height: 100dvh;
     position: relative;
-    overflow: hidden;        /* ✅ Tukar dari overflow-x: hidden */
+    overflow: hidden;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
 }
+
 
 .content {
     flex: 1;
@@ -65,15 +66,21 @@ body {
 }
 
 /* ===========================
-   4. APP HEADER (STICKY)
+   APP HEADER - FIXED (BUKAN STICKY)
    =========================== */
 .app-header {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     padding: 20px;
     color: #fff;
     flex-shrink: 0;
-    position: sticky;
+    
+    /* 🔥 GUNA FIXED UNTUK PWA */
+    position: fixed;
     top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 420px;
     z-index: 100;
 }
 
@@ -532,17 +539,18 @@ body {
 .waktu-masa { color: var(--primary); font-weight: 700; }
 
 /* ===========================
-   CONTENT - SCROLL AREA
+   CONTENT - SCROLL AREA (ADA PADDING TOP)
    =========================== */
 .content {
     flex: 1;
     overflow-y: auto;
-    padding: 0 0 90px 0;
+    padding-top: 80px;        /* 🔥 RUANG UNTUK HEADER FIXED */
+    padding-bottom: 70px;     /* 🔥 RUANG UNTUK BOTTOM NAV */
     -webkit-overflow-scrolling: touch;
 }
 
 /* ===========================
-   BOTTOM NAV - STICKY BOTTOM
+   BOTTOM NAV - FIXED (BUKAN STICKY)
    =========================== */
 .bottom-nav {
     background: var(--card);
@@ -552,9 +560,34 @@ body {
     align-items: center;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
     flex-shrink: 0;
-    position: sticky;
+    
+    /* 🔥 GUNA FIXED UNTUK PWA */
+    position: fixed;
     bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 420px;
     z-index: 100;
+}
+
+/* ===========================
+   MEDIA QUERY - DESKTOP
+   =========================== */
+@media (min-width: 480px) {
+    .phone-frame {
+        min-height: 850px;
+        max-height: 900px;
+        border-radius: 40px;
+        overflow: hidden;
+        border: 8px solid #1A1A1A;
+        margin: 20px auto;
+    }
+    
+    .app-header,
+    .bottom-nav {
+        border-radius: 0; /* Ikut phone-frame */
+    }
 }
    
 .nav-item {
