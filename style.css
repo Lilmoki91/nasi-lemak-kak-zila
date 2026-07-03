@@ -48,12 +48,22 @@ body {
     max-width: 420px;
     background: var(--bg);
     min-height: 100vh;
-    height: 100vh;
     position: relative;
     overflow-x: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
+    
+    /* 🔥 FULL HEIGHT */
+    height: 100vh; /* atau height: 100dvh; */
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    padding-bottom: 90px;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ===========================
@@ -65,7 +75,9 @@ body {
     color: #fff;
     flex-shrink: 0;
     margin: 0;
-    position: sticky;
+    
+    /* 🔥 FIXED — KEKAL ATAS */
+    position: sticky !important;
     top: 0;
     z-index: 100;
 }
@@ -533,9 +545,11 @@ body {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
     flex-shrink: 0;
-    position: sticky;
+    
+    /* 🔥 FIXED — KEKAL BAWAH */
+    position: sticky !important;
     bottom: 0;
     z-index: 100;
 }
