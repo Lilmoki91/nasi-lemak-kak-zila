@@ -47,16 +47,15 @@ body {
     width: 100%;
     max-width: 420px;
     background: var(--bg);
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height */
     position: relative;
-    overflow-x: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    overflow: hidden; /* 🔥 TUKAR DARI overflow-x: hidden */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    
-    /* 🔥 FULL HEIGHT */
-    height: 100vh; /* atau height: 100dvh; */
 }
+
 
 .content {
     flex: 1;
@@ -73,13 +72,10 @@ body {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     padding: 20px;
     color: #fff;
-    flex-shrink: 0;
-    margin: 0;
-    
-    /* 🔥 FIXED — KEKAL ATAS */
-    position: sticky !important;
+    position: sticky;
     top: 0;
     z-index: 100;
+    flex-shrink: 0;
 }
 
 .header-name {
@@ -537,7 +533,17 @@ body {
 .waktu-masa { color: var(--primary); font-weight: 700; }
 
 /* ===========================
-   14. BOTTOM NAVIGATION (STICKY)
+   CONTENT — SCROLL
+   =========================== */
+.content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 20px;
+}
+
+/* ===========================
+   BOTTOM NAV — STICKY BOTTOM
    =========================== */
 .bottom-nav {
     background: var(--card);
@@ -545,14 +551,15 @@ body {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-    flex-shrink: 0;
-    
-    /* 🔥 FIXED — KEKAL BAWAH */
-    position: sticky !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    position: sticky;
     bottom: 0;
     z-index: 100;
+    flex-shrink: 0;
 }
+    flex-shrink: 0;
+}
+
 
 .nav-item {
     display: flex;
