@@ -22,10 +22,5 @@
     "hari_operasi": ["Jumaat", "Sabtu", "Ahad", "Isnin", "Selasa", "Rabu"],
     "hari_tutup": ["Khamis"]
   },
-  "menu": [
-    {"nama": "Nasi Lemak Berlauk", "desc": "Ayam goreng, telur, sambal, ikan bilis", "harga": 5.00},
-    {"nama": "Nasi Lemak Biasa", "desc": "Nasi lemak klasik dengan sambal", "harga": 2.00},
-    {"nama": "Kaaripuf", "desc": "Karipap rangup & sedap", "harga": 1.00},
-    {"nama": "Air Balang", "desc": "Minuman segar menyegarkan", "harga": 1.00}
-  ]
+  "menu": []
 }
