@@ -771,6 +771,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ... semua function lain ...
 });
+
+// ==============================================
+// 🔽 SCROLL TO BOTTOM BOX AI CHATBOT
+// ==============================================
+function scrollToBottom() {
+    const chatBody = document.getElementById('sitiChatBody');
+    if (chatBody) {
+        chatBody.scrollTo({
+            top: chatBody.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+    const scrollBtn = document.getElementById('scrollBottomBtn');
+    if (scrollBtn) scrollBtn.classList.remove('show');
+}
+
 // ==============================================
 // 🔐 ADMIN LOGIN
 // ==============================================
