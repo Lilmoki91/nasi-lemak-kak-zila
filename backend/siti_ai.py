@@ -62,8 +62,9 @@ class SitiAI:
             doc = self.db.collection("settings").document("kedai").get()
             if doc.exists:
                 return doc.to_dict()
-        except:
-            pass
+        except Exception as e:
+            print(f"⚠️ Gagal baca Firebase: {e}")
+        
         # Fallback default
         return {
             "mode": "AUTO",
@@ -90,7 +91,8 @@ class SitiAI:
                     "featured": data.get("featured", False)
                 })
             return menu if menu else self.persona.get('menu', [])
-        except:
+        except Exception as e:
+            print(f"⚠️ Gagal baca menu Firebase: {e}")
             return self.persona.get('menu', [])
 
     # ==============================================
@@ -101,7 +103,7 @@ class SitiAI:
         mode = owner.get("mode", "AUTO")
         memo = owner.get("memo", "")
         
-        # 🔥 BACA WAKTU DARI FIREBASE (bukan hardcode!)
+        # 🔥 BACA WAKTU DARI FIREBASE
         waktu_buka_str = owner.get("waktu_buka", "19:30")
         waktu_tutup_str = owner.get("waktu_tutup", "00:00")
         hari_tutup_list = owner.get("hari_tutup", [4])
@@ -113,10 +115,10 @@ class SitiAI:
             buka = int(buka_parts[0]) * 60 + int(buka_parts[1])
             tutup = int(tutup_parts[0]) * 60 + int(tutup_parts[1])
             if tutup == 0:
-                tutup = 24 * 60  # 00:00 = 1440 minit
+                tutup = 24 * 60
         except:
-            buka = 19 * 60 + 30  # Fallback: 7:30 PM
-            tutup = 24 * 60      # Fallback: 12:00 AM
+            buka = 19 * 60 + 30
+            tutup = 24 * 60
         
         # Format waktu untuk display
         def format_waktu(menit):
@@ -134,8 +136,8 @@ class SitiAI:
         
         # Nama hari dalam BM
         hari_names = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"]
-        hari_tutup_names = [hari_names[d] for d in hari_tutup_list if 0 <= d <= 6]
         
+        # ✅ OVERRIDE MODE
         if mode == "BUKA":
             return {
                 "status": "BUKA",
@@ -151,7 +153,7 @@ class SitiAI:
                 "memo_owner": memo
             }
         
-        # AUTO
+        # ✅ AUTO MODE
         masa = self.get_malaysia_time()
         hari_num = masa["hari_num"]
         now = datetime.now(timezone(timedelta(hours=8)))
@@ -159,42 +161,45 @@ class SitiAI:
         
         # Check hari tutup
         if hari_num in hari_tutup_list:
-            hari_tutup_str = ", ".join(hari_tutup_names)
             next_hari = (hari_num + 1) % 7
             while next_hari in hari_tutup_list:
                 next_hari = (next_hari + 1) % 7
-            return {
+            result = {
                 "status": "TUTUP",
                 "sebab": f"Hari {hari_names[hari_num]} — kedai tutup",
                 "next_buka": f"{hari_names[next_hari]}, {waktu_buka_display}"
             }
-        
-        # Check waktu operasi
-        if current_minutes >= buka and current_minutes < tutup:
+        elif current_minutes >= buka and current_minutes < tutup:
             baki = tutup - current_minutes
             jam, minit = divmod(baki, 60)
-            return {
+            result = {
                 "status": "BUKA",
-                "sebab": f"Kedai sedang beroperasi. Tutup dalam {jam}j {minit}m lagi.",
-                "baki": f"{jam} jam {minit} minit"
+                "sebab": f"Kedai sedang beroperasi. Tutup dalam {jam}j {minit}m lagi."
             }
         elif current_minutes < buka:
             baki = buka - current_minutes
             jam, minit = divmod(baki, 60)
-            return {
+            result = {
                 "status": "TUTUP",
                 "sebab": f"Kedai belum dibuka. Akan dibuka dalam {jam}j {minit}m lagi.",
-                "next_buka": f"Hari ini, {waktu_buka_display} (dalam {jam} jam {minit} minit)"
+                "next_buka": f"Hari ini, {waktu_buka_display}"
             }
         else:
             next_hari = (hari_num + 1) % 7
             while next_hari in hari_tutup_list:
                 next_hari = (next_hari + 1) % 7
-            return {
+            result = {
                 "status": "TUTUP",
                 "sebab": "Kedai sudah tutup untuk hari ini.",
                 "next_buka": f"{hari_names[next_hari]}, {waktu_buka_display}"
             }
+        
+        # Tambah memo owner jika ada
+        if memo:
+            result["memo_owner"] = memo
+            result["sebab"] += f" 📝 {memo}"
+        
+        return result
 
     # ==============================================
     # 📝 SYSTEM PROMPT LENGKAP
@@ -205,12 +210,12 @@ class SitiAI:
         menu_items = self.load_menu()
         owner = self.load_owner_settings()
         
-        # Bina senarai menu dari Firebase
+        # Bina senarai menu
         menu_list = "\n".join(
             [f"- **{m['nama']}** — *{m['desc']}* — `RM{m['harga']:.2f}`" for m in menu_items]
         )
         
-        # Dapatkan info hari tutup
+        # Info hari tutup
         hari_tutup_list = owner.get("hari_tutup", [4])
         hari_names = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"]
         hari_tutup_names = [hari_names[d] for d in hari_tutup_list if 0 <= d <= 6]
