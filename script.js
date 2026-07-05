@@ -200,13 +200,13 @@ function hideUploadProgress() {
 }
 
 // ==============================================
-// ⚙️ FETCH SHOP SETTINGS DARI FIREBASE (mode + memo) ❌ tiada fallback
+// 📋 FETCH SHOP SETTINGS DARI FIREBASE (mode + memo)
 // ==============================================
 async function fetchShopSettings() {
     try {
         await waitForFirebase();
         const db = window.firebaseDB;
-        const docRef = window.fbDoc(db, 'settings', 'kedai');
+        const docRef = window.fbDoc(db, 'settings', 'shop_settings');
         const snap = await window.fbGetDoc(docRef);
         if (snap.exists()) {
             const d = snap.data();
