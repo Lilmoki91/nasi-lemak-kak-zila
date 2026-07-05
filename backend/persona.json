@@ -16,11 +16,7 @@
     "lokasi": "PPR Sri Pantai Blok 102, Kuala Lumpur",
     "google_maps": "https://maps.google.com/?q=PPR+Sri+Pantai+Blok+102",
     "waze": "https://waze.com/ul?q=PPR+Sri+Pantai+Blok+102",
-    "whatsapp": "https://wa.me/601111640776",
-    "waktu_buka": "7:30 PM",
-    "waktu_tutup": "12:00 AM",
-    "hari_operasi": ["Jumaat", "Sabtu", "Ahad", "Isnin", "Selasa", "Rabu"],
-    "hari_tutup": ["Khamis"]
+    "whatsapp": "https://wa.me/601111640776"
   },
   "menu": []
 }
