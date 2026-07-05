@@ -7,212 +7,161 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 class SitiAI:
-    def init(self):
+    def __init__(self):
         self.client = genai.Client(
-            apikey=os.environ.get("GEMINIAPI_KEY"),
+            api_key=os.environ.get("GEMINI_API_KEY"),
         )
         self.model = "gemma-4-26b-a4b-it"
         
-        # Load persona & prompt dari JSON
         with open('persona.json', 'r', encoding='utf-8') as f:
             self.persona = json.load(f)
         with open('prompt.json', 'r', encoding='utf-8') as f:
             self.prompt = json.load(f)
 
-        # 🔥 INIT FIREBASE DARI .env
-        if not firebaseadmin.apps:
-            firebasecreds = json.loads(os.environ.get("FIREBASECREDENTIALS", "{}"))
+        if not firebase_admin._apps:
+            firebase_creds = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))
             cred = credentials.Certificate(firebase_creds)
-            firebaseadmin.initializeapp(cred)
+            firebase_admin.initialize_app(cred)
         self.db = firestore.client()
-        print('✅ Firebase siap!')
 
-    # ==============================================
-    # 🕐 MASA MALAYSIA (GMT+8)
-    # ==============================================
-    def getmalaysiatime(self):
+    def get_malaysia_time(self):
         tz = timezone(timedelta(hours=8))
         now = datetime.now(tz)
-    
-        hari_map = {
-            "Monday": "Isnin", "Tuesday": "Selasa", "Wednesday": "Rabu",
-            "Thursday": "Khamis", "Friday": "Jumaat", "Saturday": "Sabtu", "Sunday": "Ahad"
-        }
-        bulan_list = ["", "Januari", "Februari", "Mac", "April", "Mei", "Jun",
-                      "Julai", "Ogos", "September", "Oktober", "November", "Disember"]
-        hari_english = now.strftime("%A")
-        haribm = harimap[hari_english]
-    
+        hari_map = {"Monday":"Isnin","Tuesday":"Selasa","Wednesday":"Rabu","Thursday":"Khamis","Friday":"Jumaat","Saturday":"Sabtu","Sunday":"Ahad"}
+        bulan_list = ["","Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"]
         return {
             "jam_12h": now.strftime("%I:%M %p"),
             "jam_24h": now.strftime("%H:%M"),
-            "hari": hari_bm,
-            "harienglish": harienglish,
+            "hari": hari_map[now.strftime("%A")],
             "hari_num": now.weekday(),
-            "tarikhpenuh": f"{now.day} {bulanlist[now.month]} {now.year}",
-            "waktupenuh": f"{haribm}, {now.day} {bulan_list[now.month]} {now.year}, {now.strftime('%I:%M %p')}"
+            "tarikh_penuh": f"{now.day} {bulan_list[now.month]} {now.year}",
+            "waktu_penuh": f"{hari_map[now.strftime('%A')]}, {now.day} {bulan_list[now.month]} {now.year}, {now.strftime('%I:%M %p')}"
         }
 
     # ==============================================
-    # 📋 LOAD OWNER SETTINGS (DARI FIREBASE - TANPA FALLBACK)
+    # 📋 LOAD OWNER SETTINGS — DARI FIREBASE
     # ==============================================
-    def loadownersettings(self):
-        """Baca settings kedai dari Firebase — TIADA FALLBACK"""
+    def load_owner_settings(self):
         try:
             doc = self.db.collection("settings").document("shop_settings").get()
-            if not doc.exists:
-                raise Exception("Document 'shop_settings' tidak wujud dalam Firebase")
-            return doc.to_dict()
-        except Exception as e:
-            print(f"❌ Gagal baca Firebase shop_settings: {e}")
-            raise  #  THROW ERROR — TIADA FALLBACK
+            if doc.exists:
+                return doc.to_dict()
+        except:
+            pass
+        return {}
 
     # ==============================================
-    # ⏰ LOAD WAKTU OPERASI (DARI FIREBASE - TANPA FALLBACK)
+    # ⏰ LOAD OPERATING HOURS — DARI FIREBASE
     # ==============================================
-    def loadoperatinghours(self):
-        """Baca waktu operasi dari Firebase — TIADA FALLBACK"""
+    def load_operating_hours(self):
         try:
             doc = self.db.collection("settings").document("operating_hours").get()
-            if not doc.exists:
-                raise Exception("Document 'operating_hours' tidak wujud dalam Firebase")
-            return doc.to_dict()
-        except Exception as e:
-            print(f"❌ Gagal baca Firebase operating_hours: {e}")
-            raise  # 🔥 THROW ERROR — TIADA FALLBACK
+            if doc.exists:
+                return doc.to_dict()
+        except:
+            pass
+        return {}
 
     # ==============================================
-    # 🍗 LOAD MENU (DARI FIREBASE - TANPA FALLBACK)
+    # 🍗 LOAD MENU — DARI FIREBASE
     # ==============================================
     def load_menu(self):
-        """Baca menu dari Firebase — TIADA FALLBACK"""
         try:
-            docs = self.db.collection("menu").where("aktif", "==", True).stream()
+            docs = self.db.collection("menu").where("aktif","==",True).stream()
             menu = []
             for doc in docs:
-                data = doc.to_dict()
-                menu.append({
-                    "nama": data.get("nama", ""),
-                    "desc": data.get("desc", ""),
-                    "harga": data.get("harga", 0),
-                    "featured": data.get("featured", False)
-                })
-            if not menu:
-                raise Exception("Tiada menu aktif dalam Firebase")
+                d = doc.to_dict()
+                menu.append({"nama":d.get("nama",""),"desc":d.get("desc",""),"harga":d.get("harga",0),"featured":d.get("featured",False)})
             return menu
-        except Exception as e:
-            print(f"❌ Gagal baca menu Firebase: {e}")
-            raise  # 🔥 THROW ERROR — TIADA FALLBACK
+        except:
+            return []
 
     # ==============================================
-    # 🟢 STATUS KEDAI (BACA DARI FIREBASE - TANPA FALLBACK)
+    # 🟢 STATUS KEDAI
     # ==============================================
-    def checkkedaistatus(self):
-        owner = self.loadownersettings()          # 🔥 Dari Firebase
-        hours = self.loadoperatinghours()         # 🔥 Dari Firebase
+    def check_kedai_status(self):
+        owner = self.load_owner_settings()
+        hours = self.load_operating_hours()
         
-        mode = owner.get("mode", "AUTO")
-        memo = owner.get("memo", "")
+        mode = owner.get("mode")
+        memo = owner.get("memo")
+        waktu_buka = hours.get("buka")
+        waktu_tutup = hours.get("tutup")
+        hari_tutup_list = hours.get("hari_tutup", [])
         
-        # 🔥 BACA WAKTU DARI FIREBASE (field name sama dengan frontend)
-        waktubukastr = hours.get("buka")
-        waktututupstr = hours.get("tutup")
-        haritutuplist = hours.get("hari_tutup", [])
-        
-        if not waktubukastr or not waktututupstr:
-            raise Exception("Field 'buka' atau 'tutup' tiada dalam operating_hours Firebase")
-        
-        # Parse waktu
-        try:
-            bukaparts = waktubuka_str.split(":")
-            tutupparts = waktututup_str.split(":")
-            buka = int(bukaparts[0]) * 60 + int(bukaparts[1])
-            tutup = int(tutupparts[0]) * 60 + int(tutupparts[1])
-            if tutup == 0:
-                tutup = 24 * 60
-        except Exception as e:
-            raise Exception(f"Format waktu tidak sah: {waktubukastr} / {waktututupstr}")
-        
-        # Format waktu untuk display
-        def format_waktu(menit):
-            jam = menit // 60
-            minit = menit % 60
-            if menit >= 24 * 60:
-                return "12:00 AM"
-            elif jam >= 12:
-                return f"{jam-12 if jam>12 else jam}:{minit:02d} PM"
-            else:
-                return f"{jam}:{minit:02d} AM"
-        
-        waktubukadisplay = format_waktu(buka)
-        waktututupdisplay = format_waktu(tutup)
-        
-        # Nama hari dalam BM
-        hari_names = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"]
-        
-        # ✅ OVERRIDE MODE
         if mode == "BUKA":
-            return {
-                "status": "BUKA",
-                "sebab": memo if memo else "Kedai dibuka khas oleh owner! 🟢",
-                "override": True,
-                "memo_owner": memo
-            }
-        elif mode == "TUTUP":
-            return {
-                "status": "TUTUP",
-                "sebab": memo if memo else "Kedai ditutup oleh owner. 🔴",
-                "override": True,
-                "memo_owner": memo
-            }
+            return {"status":"BUKA","sebab":memo or "Dibuka khas!","memo_owner":memo}
+        if mode == "TUTUP":
+            return {"status":"TUTUP","sebab":memo or "Ditutup.","memo_owner":memo}
         
-        # ✅ AUTO MODE
-        masa = self.getmalaysiatime()
-        harinum = masa["harinum"]
+        if not waktu_buka or not waktu_tutup:
+            return {"status":"TUTUP","sebab":"Waktu operasi belum ditetapkan."}
+        
+        try:
+            b = waktu_buka.split(":"); t = waktu_tutup.split(":")
+            buka = int(b[0])*60+int(b[1]); tutup = int(t[0])*60+int(t[1])
+            if tutup == 0: tutup = 24*60
+        except:
+            return {"status":"TUTUP","sebab":"Ralat waktu."}
+        
+        masa = self.get_malaysia_time()
+        hari_num = masa["hari_num"]
         now = datetime.now(timezone(timedelta(hours=8)))
-        current_minutes = now.hour * 60 + now.minute
+        current = now.hour*60+now.minute
+        hari_names = ["Ahad","Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu"]
         
-        # Check hari tutup
-        if harinum in haritutup_list:
-            nexthari = (harinum + 1) % 7
-            while nexthari in haritutup_list:
-                nexthari = (nexthari + 1) % 7
-            result = {
-                "status": "TUTUP",
-                "sebab": f"Hari {harinames[harinum]} — kedai tutup",
-                "nextbuka": f"{harinames[nexthari]}, {waktubuka_display}"
-            }
-        elif currentminutes >= buka and currentminutes  MAXINPUT:
-            return f"⚠️ Maaf, mesej terlalu panjang! Sila ringkaskan kepada {MAX_INPUT} aksara."
-        
-        if history:
-            last_msgs = [msg["text"] for msg in history if msg["role"] == "user"]
-            if lastmsgs and lastmsgs[-1] == user_message:
-                return " Anda dah hantar mesej yang sama. Ada soalan lain?"
-        
-        if history is None:
-            history = []
-        
-        contents = [
-            types.Content(role="user", parts=[types.Part.fromtext(text=self.getsystem_prompt())])
-        ]
-        for msg in history:
-            contents.append(types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["text"])]))
-        contents.append(types.Content(role="user", parts=[types.Part.fromtext(text=usermessage)]))
-        
-        config = types.GenerateContentConfig(
-            top_p=0.45, temperature=0.7,
-            thinkingconfig=types.ThinkingConfig(thinkinglevel="MINIMAL"),
-        )
-        
-        response_text = ""
-        for chunk in self.client.models.generatecontentstream(
-            model=self.model, contents=contents, config=config
-        ):
-            if chunk.text:
-                response_text += chunk.text
-        
-        return response_text
+        if hari_num in hari_tutup_list:
+            return {"status":"TUTUP","sebab":f"Hari {hari_names[hari_num]} — tutup.","memo_owner":memo}
+        if buka <= current < tutup:
+            baki = tutup - current; j,m = divmod(baki,60)
+            return {"status":"BUKA","sebab":f"Beroperasi. Tutup {j}j {m}m lagi.","memo_owner":memo}
+        if current < buka:
+            baki = buka - current; j,m = divmod(baki,60)
+            return {"status":"TUTUP","sebab":f"Belum buka. Buka {j}j {m}m lagi.","memo_owner":memo}
+        return {"status":"TUTUP","sebab":"Sudah tutup.","memo_owner":memo}
 
-Singleton
+    def get_system_prompt(self):
+        masa = self.get_malaysia_time()
+        status = self.check_kedai_status()
+        menu_items = self.load_menu()
+        owner = self.load_owner_settings()
+        hours = self.load_operating_hours()
+        
+        menu_list = "\n".join([f"- **{m['nama']}** — *{m['desc']}* — `RM{m['harga']:.2f}`" for m in menu_items])
+        hari_tutup_list = hours.get("hari_tutup", [])
+        hari_names = ["Ahad","Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu"]
+        hari_tutup_names = [hari_names[d] for d in hari_tutup_list if 0 <= d <= 6]
+        
+        return f"""Anda adalah {self.persona['watak']['nama']}, {self.persona['watak']['peranan']}.
+Persona: {self.persona['watak']['jantina']} Melayu {self.persona['watak']['umur']} tahun, {', '.join(self.persona['watak']['gaya'])}.
+
+⏰ Sekarang: {masa['waktu_penuh']}
+🟢 Status: **{status['status']}** — {status['sebab']}
+📝 Memo Owner: {owner.get('memo') or 'Tiada'}
+
+📍 {self.persona['kedai']['nama']} — {self.persona['kedai']['lokasi']}
+🗺️ Maps: {self.persona['kedai']['google_maps']} | Waze: {self.persona['kedai']['waze']}
+📲 WhatsApp: {self.persona['kedai']['whatsapp']}
+📅 Hari Tutup: {', '.join(hari_tutup_names)}
+
+🍗 MENU:
+{menu_list}
+
+🎤 Gaya: {self.persona['watak']['sapaan']} | Catchphrase: {', '.join(self.persona['watak']['catchphrase'])}
+📋 Markdown: Bold **menu** | Italic *sedap* | Code `RM5` | Bullet -
+✅ {chr(10).join(['- '+x for x in self.prompt['wajib']])}
+🚫 {chr(10).join(['- '+x for x in self.prompt['larangan']])}"""
+
+    def chat(self, user_message, history=None):
+        if len(user_message) > 500:
+            return "⚠️ Mesej terlalu panjang."
+        if history and history[-1]["text"] == user_message:
+            return "🤔 Mesej sama."
+        if history is None: history = []
+        contents = [types.Content(role="user", parts=[types.Part.from_text(text=self.get_system_prompt())])]
+        for msg in history: contents.append(types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["text"])]))
+        contents.append(types.Content(role="user", parts=[types.Part.from_text(text=user_message)]))
+        config = types.GenerateContentConfig(top_p=0.45, temperature=0.7, thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"))
+        return "".join([chunk.text for chunk in self.client.models.generate_content_stream(model=self.model, contents=contents, config=config) if chunk.text])
+
 siti_ai = SitiAI()
