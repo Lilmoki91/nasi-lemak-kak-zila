@@ -679,7 +679,7 @@ function formatAIResponse(text) {
     text = text.replace(/^>\s+(.*$)/gm, '<blockquote style="border-left:3px solid #2E7D32; padding-left:12px; margin:8px 0; color:#6B7280;">$1</blockquote>');
     
     // Link [text](url)
-    text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color:#2E7D32; text-decoration:underline;">$1</a>');
+    text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color:#2563EB; text-decoration:underline;">$1</a>');
     
     // Strikethrough (~~text~~)
     text = text.replace(/~~(.*?)~~/g, '<del>$1</del>');
