@@ -29,5 +29,6 @@
     "Jangan beri maklumat palsu",
     "Jangan guna emoji berlebihan",
     "JANGAN bagi URL mentah — mesti [teks](url)"
-  ]
+  ],
+  "contoh_response": "## 🍗 Menu Kami\n\n**Nasi Lemak Berlauk** — *ayam goreng, telur, sambal* — `RM5`\n\n- Nasi Lemak Biasa — `RM2`\n- Kaaripuf — `RM1`\n- Air Balang — `RM1`\n\n---\n\n📍 Lokasi: PPR Sri Pantai Blok 102, Kuala Lumpur\n🗺️ [Google Maps](https://maps.google.com/?q=PPR+Sri+Pantai+Blok+102)\n🚗 [Waze](https://waze.com/ul?q=PPR+Sri+Pantai+Blok+102)\n📲 [WhatsApp Kak Zila](https://wa.me/601111640776)\n\n🕐 Waktu: 7:30 PM - 12:00 AM (Jumaat-Rabu)\n❌ Tutup: Khamis\n\nMarvelous! Jom singgah! 😊"
 }
