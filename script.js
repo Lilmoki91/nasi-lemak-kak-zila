@@ -678,6 +678,47 @@ function scrollToBottom() {
 }
 
 // ==============================================
+// 🔽 SCROLL TO BOTTOM - AI CHATBOT
+// ==============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const chatBody = document.getElementById('sitiChatBody');
+    const scrollBtn = document.getElementById('scrollBottomBtn');
+    
+    // 🔥 DETECT SCROLL - TUNJUK/SEMBUNYI BUTTON
+    if (chatBody && scrollBtn) {
+        chatBody.addEventListener('scroll', function() {
+            const scrollTop = chatBody.scrollTop;
+            const scrollHeight = chatBody.scrollHeight;
+            const clientHeight = chatBody.clientHeight;
+            
+            // Kalau user scroll ke atas lebih 200px, tunjuk button
+            if (scrollHeight - scrollTop - clientHeight > 200) {
+                scrollBtn.classList.add('show');
+            } else {
+                scrollBtn.classList.remove('show');
+            }
+        });
+    }
+});
+
+// Fungsi scroll ke bawah bila button ditekan
+function scrollToBottom() {
+    const chatBody = document.getElementById('sitiChatBody');
+    const scrollBtn = document.getElementById('scrollBottomBtn');
+    
+    if (chatBody) {
+        chatBody.scrollTo({
+            top: chatBody.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+    
+    if (scrollBtn) {
+        scrollBtn.classList.remove('show');
+    }
+}
+
+// ==============================================
 // 🔐 ADMIN LOGIN
 // ==============================================
 try { adminToken = localStorage.getItem('zila_admin_token'); } catch(e) {}
