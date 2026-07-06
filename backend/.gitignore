@@ -1,28 +1,61 @@
-# Environment variables
-.env
+# ==============================================
+# ZILA FOOD - .gitignore
+# JANGAN COMMIT FAILE RAHSIA!
+# ==============================================
 
-# Firebase
+# 🔐 Environment variables (KUNCI RAHSIA)
+.env
+.env.local
+.env.production
+backend/.env
+
+# 🔥 Firebase (JANGAN UPLOAD KEY)
 firebase-key.json
 firebase-*.json
+*service-account*.json
+*credentials*.json
 
-# Python
+# 🐍 Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
 
-# Owner settings (data sensitif)
+# 📁 Data sensitif
 owner_settings.json
+*.sqlite3
+*.db
 
-# Admin auth
+# 🔒 Admin auth (jangan upload folder auth)
 admin_login/
 
-# Render
+# ☁️ Render
 .rendertmp/
 
-# IDE
+# 💻 IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
-# OS
+# 🖥️ OS
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# 📝 Logs
+*.log
+logs/
+
+# 🧪 Testing
+.pytest_cache/
+.coverage
+htmlcov/
