@@ -185,13 +185,33 @@ function handleFileSelect(event) {
 }
 
 function removeUploadPreview(event) {
-    if (event) { event.stopPropagation(); event.preventDefault(); }
+    if (event) { 
+        event.stopPropagation(); 
+        event.preventDefault(); 
+        event.stopImmediatePropagation();  // 🔥 TAMBAH NI
+    }
+    
     selectedFile = null;
     finalImageUrl = '';
-    document.getElementById('uploadPreviewWrap').classList.remove('show');
-    document.getElementById('uploadPlaceholder').style.display = 'block';
-    document.getElementById('uploadArea').classList.remove('has-image');
-    document.getElementById('menuGambarFile').value = '';
+    
+    const previewWrap = document.getElementById('uploadPreviewWrap');
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('menuGambarFile');
+    const urlInput = document.getElementById('menuGambarUrl');
+    
+    if (previewWrap) previewWrap.classList.remove('show');
+    if (placeholder) placeholder.style.display = 'block';
+    if (uploadArea) uploadArea.classList.remove('has-image');
+    if (fileInput) {
+        fileInput.value = '';
+        // 🔥 Reset input file completely
+        fileInput.type = 'text';
+        fileInput.type = 'file';
+    }
+    if (urlInput) urlInput.value = '';
+    
+    console.log('✅ Gambar dibuang dari preview');
 }
 
 function loadUrlImage() {
