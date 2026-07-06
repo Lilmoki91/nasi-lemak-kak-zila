@@ -7,10 +7,15 @@ import os
 from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
+import requests
+import base64
 
 app = Flask(__name__)
 CORS(app)
 
+# ==============================================
+# 🔥 FIREBASE INIT
+# ==============================================
 if not firebase_admin._apps:
     firebase_creds = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))
     cred = credentials.Certificate(firebase_creds)
@@ -19,6 +24,9 @@ db = firestore.client()
 
 conversations = {}
 
+# ==============================================
+# 💬 CHAT API
+# ==============================================
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.json
@@ -31,6 +39,9 @@ def chat():
     conversations[session_id] = history[-10:]
     return jsonify({"response": response, "session_id": session_id})
 
+# ==============================================
+# 🍗 MENU API
+# ==============================================
 @app.route("/api/menu", methods=["GET"])
 def get_menu():
     try:
@@ -49,6 +60,9 @@ def get_menu():
     except:
         return jsonify([])
 
+# ==============================================
+# ℹ️ INFO API
+# ==============================================
 @app.route("/api/info", methods=["GET"])
 def get_info():
     return jsonify({
@@ -57,6 +71,9 @@ def get_info():
         "whatsapp": "011-1164 0776"
     })
 
+# ==============================================
+# 🔐 ADMIN AUTH API
+# ==============================================
 @app.route("/api/admin/login", methods=["POST"])
 def admin_login():
     data = request.json
@@ -70,6 +87,9 @@ def admin_verify():
 def admin_logout():
     return jsonify(logout_admin(request.json.get("token", "")))
 
+# ==============================================
+# ⚙️ ADMIN SETTINGS API
+# ==============================================
 @app.route("/api/admin/settings", methods=["GET"])
 def get_owner_settings():
     try:
@@ -92,9 +112,168 @@ def update_owner_settings():
     }, merge=True)
     return jsonify({"success": True, "message": "Disimpan"})
 
+# ==============================================
+# 📸 UPLOAD GAMBAR KE IMGBB (API KEY SELAMAT)
+# ==============================================
+@app.route("/api/upload-image", methods=["POST"])
+def upload_image():
+    """
+    Upload gambar ke ImgBB melalui backend
+    API key disimpan selamat dalam .env
+    """
+    try:
+        # 🔍 Check ada file ke tak
+        if 'image' not in request.files:
+            return jsonify({'success': False, 'message': 'Tiada fail gambar'}), 400
+        
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'success': False, 'message': 'Tiada fail dipilih'}), 400
+        
+        # 🔒 Validate file type
+        allowed_types = {'image/jpeg', 'image/png', 'image/webp'}
+        if file.content_type not in allowed_types:
+            return jsonify({
+                'success': False, 
+                'message': f'Format tidak sah: {file.content_type}. Guna JPG, PNG atau WEBP'
+            }), 400
+        
+        # 🔑 Baca API key dari .env
+        imgbb_api_key = os.environ.get('IMGBB_API_KEY')
+        if not imgbb_api_key:
+            print('❌ IMGBB_API_KEY tidak ditetapkan dalam .env')
+            return jsonify({'success': False, 'message': 'API key tidak ditetapkan di server'}), 500
+        
+        # 📊 Validate saiz file (max 32MB untuk ImgBB)
+        file.seek(0, 2)  # Go to end
+        file_size = file.tell()
+        file.seek(0)  # Reset to beginning
+        
+        if file_size > 32 * 1024 * 1024:  # 32MB
+            return jsonify({
+                'success': False, 
+                'message': f'Fail terlalu besar: {file_size / (1024*1024):.2f}MB. Max 32MB'
+            }), 400
+        
+        print(f'📤 Mula upload: {file.filename} ({file_size / 1024:.2f}KB)')
+        
+        # 🔄 Convert file ke base64 untuk ImgBB API
+        file_bytes = file.read()
+        file_base64 = base64.b64encode(file_bytes).decode('utf-8')
+        
+        # 🚀 Upload ke ImgBB
+        response = requests.post(
+            'https://api.imgbb.com/1/upload',
+            data={
+                'key': imgbb_api_key,
+                'image': file_base64,
+                'name': f'menu_{int(datetime.now().timestamp())}'
+            },
+            timeout=30  # Timeout 30 saat
+        )
+        
+        print(f'📡 ImgBB response status: {response.status_code}')
+        
+        if response.status_code != 200:
+            print(f'❌ Upload gagal: {response.text}')
+            return jsonify({
+                'success': False, 
+                'message': f'Upload gagal: HTTP {response.status_code}'
+            }), 500
+        
+        data = response.json()
+        
+        if data.get('success'):
+            image_url = data['data']['display_url']
+            delete_url = data['data']['delete_url']
+            
+            print(f'✅ Upload berjaya: {image_url}')
+            
+            return jsonify({
+                'success': True,
+                'url': image_url,
+                'delete_url': delete_url,
+                'size': file_size,
+                'message': 'Gambar berjaya dimuat naik'
+            })
+        else:
+            error_msg = data.get('error', {}).get('message', 'Upload gagal')
+            print(f'❌ ImgBB error: {error_msg}')
+            return jsonify({
+                'success': False, 
+                'message': error_msg
+            }), 500
+            
+    except requests.exceptions.Timeout:
+        print('❌ Upload timeout')
+        return jsonify({'success': False, 'message': 'Upload timeout - sila cuba lagi'}), 504
+    except requests.exceptions.RequestException as e:
+        print(f'❌ Network error: {e}')
+        return jsonify({'success': False, 'message': f'Network error: {str(e)}'}), 500
+    except Exception as e:
+        print(f'❌ Unexpected error: {e}')
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': f'Server error: {str(e)}'}), 500
+
+
+# ==============================================
+# 🗑️ PADAM GAMBAR DARI IMGBB
+# ==============================================
+@app.route("/api/delete-image", methods=["POST"])
+def delete_image():
+    """
+    Padam gambar dari ImgBB menggunakan delete_url
+    """
+    try:
+        data = request.json
+        delete_url = data.get('delete_url')
+        
+        if not delete_url:
+            return jsonify({'success': False, 'message': 'Tiada delete URL'}), 400
+        
+        print(f'🗑️ Memadam gambar: {delete_url[:50]}...')
+        
+        # Panggil delete URL dari ImgBB
+        response = requests.get(delete_url, timeout=10)
+        
+        if response.status_code == 200:
+            print('✅ Gambar berjaya dipadam')
+            return jsonify({
+                'success': True, 
+                'message': 'Gambar berjaya dipadam'
+            })
+        else:
+            print(f'⚠️ Gagal padam: HTTP {response.status_code}')
+            return jsonify({
+                'success': False, 
+                'message': f'Gagal padam: HTTP {response.status_code}'
+            }), 500
+            
+    except requests.exceptions.Timeout:
+        print('❌ Delete timeout')
+        return jsonify({'success': False, 'message': 'Delete timeout'}), 504
+    except Exception as e:
+        print(f'❌ Delete error: {e}')
+        return jsonify({'success': False, 'message': f'Server error: {str(e)}'}), 500
+
+
+# ==============================================
+# 🏠 HOME
+# ==============================================
 @app.route("/")
 def home():
-    return jsonify({"name": "Zila Food API", "status": "running"})
+    return jsonify({
+        "name": "Zila Food API",
+        "status": "running",
+        "version": "2.0",
+        "features": ["chat", "menu", "admin", "image-upload"]
+    })
 
+
+# ==============================================
+# 🚀 RUN APP
+# ==============================================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port, debug=False)
