@@ -1240,7 +1240,7 @@ body {
 }
 
 /* ===========================
-   25. IMAGE UPLOAD
+   25. IMAGE UPLOAD (FIXED)
    =========================== */
 .upload-area {
     border: 2px dashed #D1D5DB;
@@ -1259,14 +1259,29 @@ body {
     background: #F0FDF4;
 }
 
-.upload-area.has-image { border-style: solid; border-color: #2E7D32; padding: 8px; }
+.upload-area.has-image { 
+    border-style: solid; 
+    border-color: #2E7D32; 
+    padding: 8px; 
+}
 
-.upload-icon { font-size: 2rem; margin-bottom: 6px; }
+.upload-icon { 
+    font-size: 2rem; 
+    margin-bottom: 6px; 
+}
 
-.upload-text { font-size: 0.8rem; color: #6B7280; margin-bottom: 4px; }
+.upload-text { 
+    font-size: 0.8rem; 
+    color: #6B7280; 
+    margin-bottom: 4px; 
+}
 
-.upload-hint { font-size: 0.65rem; color: #9CA3AF; }
+.upload-hint { 
+    font-size: 0.65rem; 
+    color: #9CA3AF; 
+}
 
+/* 🔥 FIX 1: Input file dengan z-index rendah */
 .upload-file-input {
     position: absolute;
     top: 0;
@@ -1275,10 +1290,21 @@ body {
     height: 100%;
     opacity: 0;
     cursor: pointer;
+    z-index: 1;  /* Di bawah butang X */
 }
 
-.upload-preview-wrap { display: none; }
-.upload-preview-wrap.show { display: block; }
+/* 🔥 FIX 2: Hide input file bila ada gambar */
+.upload-area.has-image .upload-file-input {
+    display: none;
+}
+
+.upload-preview-wrap { 
+    display: none; 
+}
+
+.upload-preview-wrap.show { 
+    display: block; 
+}
 
 .upload-preview-img {
     width: 100%;
@@ -1288,21 +1314,39 @@ body {
     background: #F3F4F6;
 }
 
+/* 🔥 FIX 3: Butang X dengan z-index tinggi */
 .upload-preview-remove {
     position: absolute;
     top: 4px;
     right: 4px;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: rgba(239, 68, 68, 0.9);
+    background: rgba(239, 68, 68, 0.95);
     color: #fff;
     border: none;
-    font-size: 0.8rem;
+    font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    
+    /* Z-index tinggi supaya di atas input file */
+    z-index: 100;
+    pointer-events: auto;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.upload-preview-remove:hover {
+    background: rgba(220, 38, 38, 1);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.upload-preview-remove:active {
+    transform: scale(0.95);
 }
 
 .upload-preview-info {
@@ -1314,8 +1358,14 @@ body {
     color: #6B7280;
 }
 
-.upload-progress { display: none; margin-top: 10px; }
-.upload-progress.show { display: block; }
+.upload-progress { 
+    display: none; 
+    margin-top: 10px; 
+}
+
+.upload-progress.show { 
+    display: block; 
+}
 
 .upload-progress-bar {
     width: 100%;
@@ -1357,7 +1407,10 @@ body {
     background: #E5E7EB;
 }
 
-.url-input-wrap { display: flex; gap: 6px; }
+.url-input-wrap { 
+    display: flex; 
+    gap: 6px; 
+}
 
 .url-input-wrap input {
     flex: 1;
@@ -1369,7 +1422,9 @@ body {
     outline: none;
 }
 
-.url-input-wrap input:focus { border-color: #2E7D32; }
+.url-input-wrap input:focus { 
+    border-color: #2E7D32; 
+}
 
 .url-input-wrap button {
     padding: 10px 14px;
@@ -1380,4 +1435,15 @@ body {
     font-size: 0.8rem;
     cursor: pointer;
     white-space: nowrap;
+    transition: all 0.2s;
 }
+
+.url-input-wrap button:hover {
+    background: #3367D6;
+    transform: translateY(-1px);
+}
+
+.url-input-wrap button:active {
+    transform: translateY(0);
+}
+
