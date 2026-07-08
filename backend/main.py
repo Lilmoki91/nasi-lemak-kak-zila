@@ -190,66 +190,153 @@ def upload_image():
 
 
 # ==============================================
-# 🗑️ PADAM GAMBAR DARI IMGBB (GUNA ID + API KEY)
+# 🗑️ PADAM GAMBAR DARI IMGBB (WITH FULL DEBUGGING)
 # ==============================================
 @app.route("/api/delete-image", methods=["POST"])
 def delete_image():
-    """Padam gambar guna image_id + API key (cara yang BETUL)"""
+    """Padam gambar dari ImgBB"""
+    print('\n' + '='*60)
+    print('🗑️ DELETE IMAGE REQUEST')
+    print('='*60)
+    
     try:
         data = request.json
-        image_id = data.get('image_id')
+        print(f'📥 Request data: {data}')
         
-        print(f'\n{"="*60}')
-        print(f'🗑️ DELETE IMAGE REQUEST')
-        print(f'{"="*60}')
-        print(f'📥 Received image_id: {image_id}')
+        image_id = data.get('image_id')
+        print(f'📥 image_id: {image_id}')
         
         if not image_id:
-            print('❌ Tiada image_id')
-            return jsonify({'success': False, 'message': 'Tiada image ID'}), 400
+            print('❌ ERROR: Tiada image_id')
+            return jsonify({
+                'success': False, 
+                'message': 'Tiada image ID'
+            }), 400
         
         imgbb_api_key = os.environ.get('IMGBB_API_KEY')
+        print(f'🔑 API key exists: {bool(imgbb_api_key)}')
+        
         if not imgbb_api_key:
-            return jsonify({'success': False, 'message': 'API key tidak ditetapkan'}), 500
+            print('❌ ERROR: IMGBB_API_KEY tidak ditetapkan')
+            return jsonify({
+                'success': False, 
+                'message': 'API key tidak ditetapkan di server'
+            }), 500
         
-        # 🔥 GUNA API DELETE YANG BETUL
-        delete_api_url = f'https://api.imgbb.com/1/delete?key={imgbb_api_key}&id={image_id}'
+        # 🔥 CUBA 3 CARA DELETE
+        methods_tried = []
         
-        print(f'📡 Calling ImgBB DELETE API...')
-        response = requests.post(delete_api_url, timeout=15)
-        
-        print(f'📥 ImgBB response status: {response.status_code}')
-        
+        # CARA 1: Guna endpoint delete
         try:
-            response_data = response.json()
-            print(f'📥 Response: {response_data}')
+            print('📡 Mencuba CARA 1: POST /1/delete...')
+            delete_url = 'https://api.imgbb.com/1/delete'
+            response1 = requests.post(
+                delete_url,
+                params={
+                    'key': imgbb_api_key,
+                    'id': image_id
+                },
+                timeout=15
+            )
+            print(f'📥 Response 1 status: {response1.status_code}')
+            print(f'📥 Response 1 text: {response1.text[:200]}')
             
-            if response_data.get('success'):
-                print('✅ Gambar BERJAYA dipadam!')
+            try:
+                resp_data1 = response1.json()
+                print(f' Response 1 JSON: {resp_data1}')
+                
+                if response1.status_code == 200 and resp_data1.get('success'):
+                    print('✅ CARA 1 BERJAYA!')
+                    return jsonify({
+                        'success': True,
+                        'message': 'Gambar berjaya dipadam',
+                        'method': 'CARA 1'
+                    })
+            except:
+                pass
+            
+            methods_tried.append(f'CARA 1: {response1.status_code}')
+        except Exception as e1:
+            print(f'❌ CARA 1 gagal: {e1}')
+            methods_tried.append(f'CARA 1 ERROR: {str(e1)}')
+        
+        # CARA 2: Guna endpoint image dengan DELETE method
+        try:
+            print('📡 Mencuba CARA 2: DELETE /1/image/{id}...')
+            image_url = f'https://api.imgbb.com/1/image/{image_id}'
+            response2 = requests.delete(
+                image_url,
+                params={'key': imgbb_api_key},
+                timeout=15
+            )
+            print(f'📥 Response 2 status: {response2.status_code}')
+            print(f'📥 Response 2 text: {response2.text[:200]}')
+            
+            if response2.status_code in [200, 204, 302]:
+                print('✅ CARA 2 BERJAYA!')
                 return jsonify({
                     'success': True,
-                    'message': 'Gambar berjaya dipadam'
+                    'message': 'Gambar berjaya dipadam',
+                    'method': 'CARA 2'
                 })
-            else:
-                error_msg = response_data.get('error', {}).get('message', 'Unknown error')
-                print(f'⚠️ Gagal padam: {error_msg}')
-                return jsonify({
-                    'success': False,
-                    'message': error_msg
-                }), 500
-        except:
-            # Kalau response bukan JSON
-            if response.status_code in [200, 302]:
-                return jsonify({'success': True, 'message': 'Gambar dipadam'})
-            return jsonify({'success': False, 'message': 'Gagal padam'}), 500
             
-    except requests.exceptions.Timeout:
-        return jsonify({'success': False, 'message': 'Delete timeout'}), 504
+            methods_tried.append(f'CARA 2: {response2.status_code}')
+        except Exception as e2:
+            print(f' CARA 2 gagal: {e2}')
+            methods_tried.append(f'CARA 2 ERROR: {str(e2)}')
+        
+        # CARA 3: Guna endpoint image dengan POST method
+        try:
+            print('📡 Mencuba CARA 3: POST /1/image/{id}...')
+            image_url = f'https://api.imgbb.com/1/image/{image_id}'
+            response3 = requests.post(
+                image_url,
+                params={
+                    'key': imgbb_api_key,
+                    'action': 'delete'
+                },
+                timeout=15
+            )
+            print(f'📥 Response 3 status: {response3.status_code}')
+            print(f'📥 Response 3 text: {response3.text[:200]}')
+            
+            try:
+                resp_data3 = response3.json()
+                print(f' Response 3 JSON: {resp_data3}')
+                
+                if response3.status_code == 200:
+                    print('✅ CARA 3 BERJAYA!')
+                    return jsonify({
+                        'success': True,
+                        'message': 'Gambar berjaya dipadam',
+                        'method': 'CARA 3'
+                    })
+            except:
+                pass
+            
+            methods_tried.append(f'CARA 3: {response3.status_code}')
+        except Exception as e3:
+            print(f'❌ CARA 3 gagal: {e3}')
+            methods_tried.append(f'CARA 3 ERROR: {str(e3)}')
+        
+        # Semua cara gagal
+        print('❌ SEMUA CARA GAGAL')
+        print(f'Methods tried: {methods_tried}')
+        
+        return jsonify({
+            'success': False,
+            'message': f'Gagal padam. Methods: {methods_tried}',
+            'debug': methods_tried
+        }), 500
+            
     except Exception as e:
-        print(f'❌ Delete error: {e}')
+        print(f'❌ Unexpected error: {e}')
         import traceback
         traceback.print_exc()
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return jsonify({
+            'success': False, 
+            'message': f'Server error: {str(e)}'
+        }), 500
 
 # ==============================================
 # 🏠 HOME
