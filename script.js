@@ -489,7 +489,10 @@ function binaMenuHTML(m) {
     } else {
         butang = `<button class="add-btn" onclick="tambahItem('${m.id}')">+</button>`;
     }
-    const imgHTML = m.gambar ? `<img src="${m.gambar}" class="menu-item-img" alt="${m.nama}" onerror="this.style.display='none'">` : '';
+    
+    //  GAMBAR DENGAN CLICK EVENT UNTUK LIGHTBOX
+    const imgHTML = m.gambar ? `<img src="${m.gambar}" class="menu-item-img" alt="${m.nama}" onclick="openLightbox('${m.gambar}', '${m.nama}')" style="cursor: pointer;">` : '';
+    
     return `
         <div class="menu-item ${m.featured ? 'featured' : ''}">
             ${imgHTML}
@@ -1375,5 +1378,40 @@ async function initApp() {
         kemasKiniUI();
     }, 30000);
 }
+
+// ==============================================
+// 🖼️ LIGHTBOX GAMBAR MENU
+// ==============================================
+function openLightbox(imageUrl, caption) {
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImage = document.getElementById('lightboxImage');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+    
+    lightboxImage.src = imageUrl;
+    lightboxCaption.textContent = caption || '';
+    lightbox.classList.add('show');
+    
+    // Disable scroll
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    const lightbox = document.getElementById('imageLightbox');
+    lightbox.classList.remove('show');
+    
+    // Enable scroll
+    document.body.style.overflow = '';
+}
+
+// Close lightbox bila tekan ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeLightbox();
+    }
+});
 
 initApp();
