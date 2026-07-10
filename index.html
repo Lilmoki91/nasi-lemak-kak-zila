@@ -409,7 +409,18 @@
             <button onclick="sendMessage()"><i class="fas fa-arrow-up"></i></button>
         </div>
     </div>
+
+<!-- ==============================================
+     LIGHTBOX GAMBAR MENU
+     ============================================== -->
+<div id="imageLightbox" class="lightbox-overlay" onclick="closeLightbox(event)">
+    <div class="lightbox-content">
+        <button class="lightbox-close" onclick="closeLightbox(event)">✕</button>
+        <img id="lightboxImage" src="" alt="Gambar Menu">
+        <div id="lightboxCaption" class="lightbox-caption"></div>
+    </div>
 </div>
+    
 <script src="script.js" defer></script>
 </body>
 </html>
