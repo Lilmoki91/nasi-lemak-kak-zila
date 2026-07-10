@@ -1240,7 +1240,7 @@ body {
 }
 
 /* ===========================
-   25. IMAGE UPLOAD (FIXED)
+   25. IMAGE UPLOAD (FINAL FIX)
    =========================== */
 .upload-area {
     border: 2px dashed #D1D5DB;
@@ -1262,7 +1262,9 @@ body {
 .upload-area.has-image { 
     border-style: solid; 
     border-color: #2E7D32; 
-    padding: 8px; 
+    padding: 8px;
+    overflow: hidden !important;
+    position: relative;
 }
 
 .upload-icon { 
@@ -1281,7 +1283,6 @@ body {
     color: #9CA3AF; 
 }
 
-/* 🔥 FIX 1: Input file dengan z-index rendah */
 .upload-file-input {
     position: absolute;
     top: 0;
@@ -1290,20 +1291,24 @@ body {
     height: 100%;
     opacity: 0;
     cursor: pointer;
-    z-index: 1;  /* Di bawah butang X */
+    z-index: 1;
 }
 
-/* 🔥 FIX 2: Hide input file bila ada gambar */
 .upload-area.has-image .upload-file-input {
     display: none;
 }
 
 .upload-preview-wrap { 
-    display: none; 
+    display: none;
+    position: relative;
+    overflow: hidden !important;
+    border-radius: 8px;
 }
 
 .upload-preview-wrap.show { 
-    display: block; 
+    display: block;
+    position: relative;
+    overflow: hidden !important;
 }
 
 .upload-preview-img {
@@ -1312,28 +1317,29 @@ body {
     object-fit: contain;
     border-radius: 8px;
     background: #F3F4F6;
+    display: block;
 }
 
-/* 🔥 FIX 3: Butang X dengan z-index tinggi */
+/* 🔥 BUTANG X - KURANGKAN Z-INDEX */
 .upload-preview-remove {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 32px;
-    height: 32px;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: rgba(239, 68, 68, 0.95);
     color: #fff;
     border: none;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     
-    /* Z-index tinggi supaya di atas input file */
-    z-index: 100;
+    /* 🔥 KURANGKAN z-index supaya tak terbang keluar */
+    z-index: 10 !important;
     pointer-events: auto;
     transition: all 0.2s ease;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
@@ -1445,6 +1451,26 @@ body {
 
 .url-input-wrap button:active {
     transform: translateY(0);
+}
+
+/* ===========================
+    ADMIN PANEL HEADER - Z-INDEX TINGGI
+   =========================== */
+.admin-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important; /* 🔥 LEBIH TINGGI DARI BUTANG X */
+    background: #2E7D32 !important;
+}
+
+.admin-panel {
+    position: relative;
+    z-index: 1;
+}
+
+.admin-content {
+    position: relative;
+    z-index: 1;
 }
 
 /* ===========================
