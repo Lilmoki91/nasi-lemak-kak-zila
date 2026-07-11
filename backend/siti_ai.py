@@ -23,7 +23,7 @@ class SitiAI:
             firebase_creds = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))
             cred = credentials.Certificate(firebase_creds)
             firebase_admin.initialize_app(cred)
-        self.db = firestore.Client()
+        self.db = firebase_admin.firestore.client()  # ✅ Huruf kecil c
 
     def get_malaysia_time(self):
         tz = timezone(timedelta(hours=8))
