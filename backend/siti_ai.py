@@ -205,69 +205,59 @@ Persona: {self.persona['watak']['jantina']} Melayu {self.persona['watak']['umur'
 ✅ {chr(10).join(['- '+x for x in self.prompt['wajib']])}
 🚫 {chr(10).join(['- '+x for x in self.prompt['larangan']])}"""
 
-    # ==============================================
-    # 💬 CHAT FUNCTION — WITH SECURITY & MEMORY
-    # ==============================================
-    def chat(self, user_message, user_id="anonymous", history=None):
-        """
-        Chat dengan Siti AI dengan keselamatan & memory
+# ==============================================
+# 💬 CHAT FUNCTION — FIXED SIGNATURE
+# ==============================================
+def chat(self, user_message, history=None):
+    """
+    Chat dengan Siti AI — signature asal dikekalkan
+    """
+    # 🔥 SECURITY CHECK 1: Message length limit
+    MAX_INPUT = 500
+    if len(user_message) > MAX_INPUT:
+        return f"️ *Maaf, mesej terlalu panjang!* Sila ringkaskan kepada {MAX_INPUT} aksara."
+     
+    # 🔥 MEMORY: Use provided history or empty list
+    if history is None:
+        history = []
+    
+    # 🔥 MEMORY: Limit history to last 10 messages (prevent token overflow)
+    MAX_HISTORY = 10
+    if len(history) > MAX_HISTORY:
+        history = history[-MAX_HISTORY:]
+    
+    # Build conversation contents
+    contents = [
+        types.Content(role="user", parts=[types.Part.from_text(text=self.get_system_prompt())])
+    ]
+    
+    # Add conversation history (memory)
+    for msg in history:
+        contents.append(types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["text"])]))
+    
+    # Add current message
+    contents.append(types.Content(role="user", parts=[types.Part.from_text(text=user_message)]))
+    
+    # Generate response
+    config = types.GenerateContentConfig(
+        top_p=0.45,
+        temperature=0.7,
+        thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
+    )
+    
+    try:
+        response_text = ""
+        for chunk in self.client.models.generate_content_stream(
+            model=self.model, contents=contents, config=config
+        ):
+            if chunk.text:
+                response_text += chunk.text
         
-        Args:
-            user_message: Mesej dari user
-            user_id: ID user (untuk anti-spam & memory)
-            history: Sejarah perbualan (memory)
-        """
-        # 🔥 SECURITY CHECK 1: Message length limit
-        MAX_INPUT = 500
-        if len(user_message) > MAX_INPUT:
-            return f"⚠️ *Maaf, mesej terlalu panjang!* Sila ringkaskan kepada {MAX_INPUT} aksara."
+        return response_text
         
-        # 🔥 SECURITY CHECK 2: Anti-spam
-        is_spam, spam_reason = self.check_spam(user_id, user_message)
-        if is_spam:
-            return spam_reason
-        
-        # 🔥 MEMORY: Use provided history or empty list
-        if history is None:
-            history = []
-        
-        # 🔥 MEMORY: Limit history to last 10 messages (prevent token overflow)
-        MAX_HISTORY = 10
-        if len(history) > MAX_HISTORY:
-            history = history[-MAX_HISTORY:]
-        
-        # Build conversation contents
-        contents = [
-            types.Content(role="user", parts=[types.Part.from_text(text=self.get_system_prompt())])
-        ]
-        
-        # Add conversation history (memory)
-        for msg in history:
-            contents.append(types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["text"])]))
-        
-        # Add current message
-        contents.append(types.Content(role="user", parts=[types.Part.from_text(text=user_message)]))
-        
-        # Generate response
-        config = types.GenerateContentConfig(
-            top_p=0.45,
-            temperature=0.7,
-            thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
-        )
-        
-        try:
-            response_text = ""
-            for chunk in self.client.models.generate_content_stream(
-                model=self.model, contents=contents, config=config
-            ):
-                if chunk.text:
-                    response_text += chunk.text
-            
-            return response_text
-            
-        except Exception as e:
-            print(f"[SitiAI] Error generating response: {e}")
-            return "⚠️ *Maaf, Siti AI ada masalah teknikal.* Sila cuba sebentar lagi."
+    except Exception as e:
+        print(f"[SitiAI] Error generating response: {e}")
+        return "😔 Maaf, Siti AI offline sekejap."
 
 # Singleton
 siti_ai = SitiAI()
