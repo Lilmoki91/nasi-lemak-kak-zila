@@ -1,0 +1,28 @@
+# ==============================================
+# ZILA FOOD - BACKEND MAIN .gitignore
+# ==============================================
+
+# 🔐 Local Environment Variables
+.env
+
+# 🐍 Python Cache & Virtual Env
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+
+# 🔒 Admin Auth (Jangan upload folder ni)
+admin_login/
+
+# 📁 Data Sensitif
+owner_settings.json
+*.sqlite3
+*.db
+
+# ☁️ Render Temp
+.rendertmp/
