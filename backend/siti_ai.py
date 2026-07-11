@@ -23,7 +23,7 @@ class SitiAI:
             firebase_creds = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))
             cred = credentials.Certificate(firebase_creds)
             firebase_admin.initialize_app(cred)
-        self.db = firebase_admin.firestore.client()  # ✅ BETUL: guna firebase_admin
+        self.db = firebase_admin.firestore.client()
         
         # 🔥 ANTI-SPAM: Track user messages
         self.user_message_history = {}
@@ -90,7 +90,7 @@ class SitiAI:
         # 🔥 CHECK 1: Duplicate message (last 5 messages)
         recent_msgs = [msg for _, msg in self.user_message_history[user_id][-5:]]
         if recent_msgs.count(message) >= 2:
-            return True, " *Jangan spam mesej yang sama!* "
+            return True, "🚫 *Jangan spam mesej yang sama!* 😅"
         
         # 🔥 CHECK 2: Too many messages in 10 seconds
         recent_10s = [t for t, _ in self.user_message_history[user_id] if current_time - t < 10]
@@ -145,7 +145,7 @@ class SitiAI:
         if current < buka:
             baki = buka - current; j,m = divmod(baki,60)
             return {"status":"TUTUP","icon":"🔴","sebab":f"Belum buka. Buka {j}j {m}m lagi.","memo_owner":memo}
-        return {"status":"TUTUP","icon":"","sebab":"Sudah tutup.","memo_owner":memo}
+        return {"status":"TUTUP","icon":"🔴","sebab":"Sudah tutup.","memo_owner":memo}
 
     def get_system_prompt(self):
         masa = self.get_malaysia_time()
@@ -176,121 +176,74 @@ Persona: {self.persona['watak']['jantina']} Melayu {self.persona['watak']['umur'
 🍗 MENU:
 {menu_list}
 
- Gaya: {self.persona['watak']['sapaan']} | Catchphrase: {', '.join(self.persona['watak']['catchphrase'])}
+🎤 Gaya: {self.persona['watak']['sapaan']} | Catchphrase: {', '.join(self.persona['watak']['catchphrase'])}
 📋 Markdown: Bold **menu** | Italic *sedap* | Code `RM5` | Bullet -
 ✅ {chr(10).join(['- '+x for x in self.prompt['wajib']])}
 🚫 {chr(10).join(['- '+x for x in self.prompt['larangan']])}"""
 
     # ==============================================
-    # 💬 CHAT FUNCTION — DENGAN KESELAMATAN PENUH
+    # 💬 CHAT FUNCTION — SATU SAHAJA, DENGAN KESELAMATAN PENUH
     # ==============================================
-    def chat(self, user_message, history=None):
-    # 🔥 SECURITY CHECK 1: Message length limit
-    MAX_INPUT = 500
-    if len(user_message) > MAX_INPUT:
-        print(f"[SitiAI] Message too long: {len(user_message)} chars")
-        return f"⚠️ *Maaf, mesej terlalu panjang!* Sila ringkaskan kepada {MAX_INPUT} aksara."
-    
-    # 🔥 SECURITY CHECK 2: Anti-spam
-    user_id = "anonymous"
-    is_spam, spam_reason = self.check_spam(user_id, user_message)
-    if is_spam:
-        print(f"[SitiAI] Spam detected: {user_message[:50]}")
-        return spam_reason
-    
-    print(f"[SitiAI] Processing message: {user_message[:50]}")
-    
-    if history is None:
-        history = []
-    
-    MAX_HISTORY = 10
-    if len(history) > MAX_HISTORY:
-        history = history[-MAX_HISTORY:]
-    
-    try:
-        print("[SitiAI] Building contents...")
-        contents = [
-            types.Content(role="user", parts=[types.Part.from_text(text=self.get_system_prompt())])
-        ]
-        
-        for msg in history:
-            contents.append(types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["text"])]))
-        
-        contents.append(types.Content(role="user", parts=[types.Part.from_text(text=user_message)]))
-        
-        print("[SitiAI] Calling Gemini API...")
-        config = types.GenerateContentConfig(
-            top_p=0.45,
-            temperature=0.7,
-            thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
-        )
-        
-        response_text = ""
-        chunk_count = 0
-        for chunk in self.client.models.generate_content_stream(
-            model=self.model, contents=contents, config=config
-        ):
-            if chunk.text:
-                response_text += chunk.text
-                chunk_count += 1
-        
-        print(f"[SitiAI] Response generated: {len(response_text)} chars, {chunk_count} chunks")
-        return response_text
-        
-    except Exception as e:
-        print(f"[SitiAI] ERROR: {type(e).__name__}: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return "😔 Maaf, Siti AI ada masalah teknikal."
-    
     def chat(self, user_message, history=None):
         # 🔥 SECURITY CHECK 1: Message length limit
         MAX_INPUT = 500
         if len(user_message) > MAX_INPUT:
+            print(f"[SitiAI] Message too long: {len(user_message)} chars")
             return f"⚠️ *Maaf, mesej terlalu panjang!* Sila ringkaskan kepada {MAX_INPUT} aksara."
         
-        #  SECURITY CHECK 2: Anti-spam (guna "anonymous" sebagai default user_id)
-        user_id = "anonymous"  # Boleh tukar jika ada user authentication
+        # 🔥 SECURITY CHECK 2: Anti-spam
+        user_id = "anonymous"
         is_spam, spam_reason = self.check_spam(user_id, user_message)
         if is_spam:
+            print(f"[SitiAI] Spam detected: {user_message[:50]}")
             return spam_reason
+        
+        print(f"[SitiAI] Processing message: {user_message[:50]}")
         
         # 🔥 MEMORY: Use provided history or empty list
         if history is None:
             history = []
         
-        #  MEMORY: Limit history to last 10 messages
+        # 🔥 MEMORY: Limit history to last 10 messages
         MAX_HISTORY = 10
         if len(history) > MAX_HISTORY:
             history = history[-MAX_HISTORY:]
         
-        # Build conversation contents
-        contents = [
-            types.Content(role="user", parts=[types.Part.from_text(text=self.get_system_prompt())])
-        ]
-        
-        for msg in history:
-            contents.append(types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["text"])]))
-        
-        contents.append(types.Content(role="user", parts=[types.Part.from_text(text=user_message)]))
-        
-        config = types.GenerateContentConfig(
-            top_p=0.45,
-            temperature=0.7,
-            thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
-        )
-        
         try:
+            print("[SitiAI] Building contents...")
+            contents = [
+                types.Content(role="user", parts=[types.Part.from_text(text=self.get_system_prompt())])
+            ]
+            
+            for msg in history:
+                contents.append(types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["text"])]))
+            
+            contents.append(types.Content(role="user", parts=[types.Part.from_text(text=user_message)]))
+            
+            print("[SitiAI] Calling Gemini API...")
+            config = types.GenerateContentConfig(
+                top_p=0.45,
+                temperature=0.7,
+                thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
+            )
+            
             response_text = ""
+            chunk_count = 0
             for chunk in self.client.models.generate_content_stream(
                 model=self.model, contents=contents, config=config
             ):
                 if chunk.text:
                     response_text += chunk.text
+                    chunk_count += 1
+            
+            print(f"[SitiAI] Response generated: {len(response_text)} chars, {chunk_count} chunks")
             return response_text
+            
         except Exception as e:
-            print(f"[SitiAI] Error generating response: {e}")
+            print(f"[SitiAI] ERROR: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return "😔 Maaf, Siti AI ada masalah teknikal."
 
 # Singleton
-siti_ai = SitiAI()
+siti_ai = SitiAI() 
