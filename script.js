@@ -652,16 +652,153 @@ function tunjukPopup() {
 function tutupPopup() { document.getElementById('popupTutup').classList.remove('show'); }
 
 // ==============================================
-// 📤 SHARE
+// 📤 FUNGSI SHARE SOCIAL MEDIA (LENGKAP)
 // ==============================================
+
 const SHARE_URL = 'https://nasi-lemak-kak-zila.pages.dev';
 const SHARE_TITLE = '🍽️ Nasi Lemak Kak Zila';
-const SHARE_TEXT = 'Jom singgah! Nasi Lemak sedap di PPR Sri Pantai Blok 102 Kuala Lumpur.';
-function shareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT + '\n\n' + SHARE_URL)}`, '_blank'); }
-function shareTelegram() { window.open(`https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`, '_blank'); }
-function shareFacebook() {
-    if (navigator.clipboard) navigator.clipboard.writeText(SHARE_URL).then(() => toast('📋 URL disalin!'));
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`, 'facebook-share', 'width=626,height=436');
+const SHARE_TEXT = 'Jom singgah! Nasi Lemak sedap di PPR Sri Pantai Blok 102 Kuala Lumpur. Buka 7:30PM - 12AM (Jumaat-Rabu). Tutup Khamis.';
+
+// ==============================================
+// 💬 WHATSAPP
+// ==============================================
+function shareWhatsApp() {
+    const teks = `${SHARE_TITLE}%0A%0A${SHARE_TEXT}%0A%0A🔗 ${SHARE_URL}`;
+    window.open(`https://wa.me/?text=${teks}`, '_blank');
+}
+
+// ==============================================
+// ✈️ TELEGRAM
+// ==============================================
+function shareTelegram() {
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(SHARE_TITLE + '\n\n' + SHARE_TEXT)}`, '_blank');
+}
+    
+// ==============================================
+// 📘 FACEBOOK
+// ==============================================
+    function shareFacebook() {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    
+    // Copy URL sahaja (bukan teks penuh) - supaya kad preview keluar
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(SHARE_URL).then(function() {
+            toast('📋 URL disalin!');
+            showFacebookGuide();
+        });
+    }
+    
+    if (isMobile) {
+        // Cuba buka Facebook App
+        setTimeout(function() {
+            window.location.href = 'fb://composer';
+            
+            // Fallback: buka Facebook web
+            setTimeout(function() {
+                window.open('https://m.facebook.com/composer', '_blank');
+            }, 1500);
+        }, 500);
+        
+    } else {
+        // Desktop: Buka Facebook Share Dialog
+        window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SHARE_URL)}`,
+            'facebook-share',
+            'width=626,height=436'
+        );
+    }
+}
+
+// Popup panduan cantik
+function showFacebookGuide() {
+    const guide = document.createElement('div');
+    guide.style.cssText = `
+        position: fixed;
+        bottom: 80px;
+        left: 20px;
+        right: 20px;
+        background: #1877F2;
+        color: #fff;
+        padding: 20px;
+        border-radius: 20px;
+        z-index: 999;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        animation: popIn 0.3s ease;
+    `;
+    guide.innerHTML = `
+        <div style="font-size:2rem; margin-bottom:8px;">📘</div>
+        <strong style="font-size:1rem;">Facebook Dibuka!</strong><br><br>
+        <span style="font-size:0.8rem; opacity:0.9;">📋 URL dah disalin</span><br><br>
+        <span style="background:#fff; color:#1877F2; padding:6px 14px; border-radius:10px; font-size:0.75rem; display:inline-block; margin:8px 0;">
+            ${SHARE_URL}
+        </span><br><br>
+        <span style="font-size:0.75rem; opacity:0.9;">⚡ <strong>Paste URL ini</strong> di post Facebook<br>untuk keluarkan kad preview</span><br>
+        <span style="font-size:0.65rem; opacity:0.7;">👇 Tekan untuk tutup</span>
+    `;
+    guide.onclick = function() { 
+        guide.style.opacity = '0';
+        guide.style.transition = 'opacity 0.3s';
+        setTimeout(function() { guide.remove(); }, 300);
+    };
+    document.body.appendChild(guide);
+    
+    // Auto tutup selepas 8 saat
+    setTimeout(function() { 
+        if (document.body.contains(guide)) {
+            guide.style.opacity = '0';
+            guide.style.transition = 'opacity 0.3s';
+            setTimeout(function() { guide.remove(); }, 300);
+        }
+    }, 8000);
+}
+// ==============================================
+// 📋 COPY LINK
+// ==============================================
+function shareCopyLink() {
+    const teks = `${SHARE_TITLE}\n\n${SHARE_TEXT}\n\n🔗 ${SHARE_URL}`;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(teks).then(function() {
+            toast('📋 Pautan & teks disalin ke clipboard!');
+        }).catch(function() {
+            toast('📤 Sila kongsi manual');
+        });
+    } else {
+        // Fallback untuk older browser
+        const textarea = document.createElement('textarea');
+        textarea.value = teks;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        toast('📋 Pautan & teks disalin!');
+    }
+}
+
+// ==============================================
+// 📱 NATIVE SHARE (Mobile only)
+// ==============================================
+function shareNative() {
+    if (navigator.share) {
+        navigator.share({
+            title: SHARE_TITLE,
+            text: SHARE_TEXT,
+            url: SHARE_URL
+        }).then(function() {
+            toast('✅ Berjaya dikongsi!');
+        }).catch(function(error) {
+            if (error.name !== 'AbortError') {
+                toast('📤 Sila kongsi manual');
+            }
+        });
+    } else {
+        shareCopyLink();
+    }
 }
 
 // ==============================================
