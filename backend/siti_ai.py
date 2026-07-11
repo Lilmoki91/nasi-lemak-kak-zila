@@ -5,6 +5,7 @@ from google import genai
 from google.genai import types
 import firebase_admin
 from firebase_admin import credentials, firestore
+from google.cloud import firestore
 
 class SitiAI:
     def __init__(self):
@@ -58,7 +59,7 @@ class SitiAI:
 
     def load_menu(self):
         try:
-            docs = self.db.collection("menu").where("aktif","==",True).stream()
+            docs = self.db.collection("menu").where(filter=firestore.FieldFilter("aktif","==",True)).stream()
             menu = []
             for doc in docs:
                 d = doc.to_dict()
