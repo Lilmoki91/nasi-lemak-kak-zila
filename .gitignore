@@ -1,104 +1,34 @@
 # ==============================================
-# ZILA FOOD - ROOT .gitignore
+# ZILA FOOD - ROOT .gitignore (GLOBAL)
 # ==============================================
 
-# ==============================================
-# ️ CLOUDFLARE / WRANGLER (ASAL)
-# ==============================================
+# ☁️ CLOUDFLARE / WRANGLER
 .wrangler
 .dev.vars*
 !.dev.vars.example
+
+# 🔐 Environment Variables (Root)
 .env*
 !.env.example
 
-# ==============================================
-#  Environment variables (KUNCI RAHSIA)
-# ==============================================
-.env.local
-.env.production
-backend-main/.env
-backend-ai/.env
-
-# ==============================================
-# 🔥 Firebase (JANGAN UPLOAD KEY)
-# ==============================================
+# 🔥 Firebase Keys (Global)
 firebase-key.json
 firebase-*.json
 *service-account*.json
 *credentials*.json
 
-# ==============================================
-# 🐍 Python
-# ==============================================
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-.venv/
-*.egg-info/
-dist/
-build/
-
-# ==============================================
-# 📁 Data sensitif
-# ==============================================
-owner_settings.json
-*.sqlite3
-*.db
-
-# ==============================================
-# 🔒 Admin auth (jangan upload folder auth)
-# ==============================================
-backend-main/admin_login/
-
-# ==============================================
-# ☁️ Render
-# ==============================================
-.rendertmp/
-
-# ==============================================
-# 💻 IDE
-# ==============================================
+# 💻 IDE Files (Global)
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# ==============================================
-# 🖥️ OS
-# ==============================================
+# 🖥️ OS Files (Global)
 .DS_Store
 Thumbs.db
 Desktop.ini
 
-# ==============================================
-# 📝 Logs
-# ==============================================
+# 📝 Logs (Global)
 *.log
 logs/
-
-# ==============================================
-# 🧪 Testing
-# ==============================================
-.pytest_cache/
-.coverage
-htmlcov/
-
-# ==============================================
-# 🤖 Node modules (jika ada frontend build)
-# ==============================================
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# ==============================================
-# 📦 Build output
-# ==============================================
-*.min.js
-*.min.css
-sourcemap
