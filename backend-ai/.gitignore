@@ -1,0 +1,20 @@
+# ==============================================
+# ZILA FOOD - BACKEND AI .gitignore
+# ==============================================
+
+# 🔐 Local Environment Variables
+.env
+
+# 🐍 Python Cache & Virtual Env
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+
+# ☁️ Render Temp
+.rendertmp/
