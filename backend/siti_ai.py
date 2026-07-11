@@ -185,6 +185,65 @@ Persona: {self.persona['watak']['jantina']} Melayu {self.persona['watak']['umur'
     # 💬 CHAT FUNCTION — DENGAN KESELAMATAN PENUH
     # ==============================================
     def chat(self, user_message, history=None):
+    # 🔥 SECURITY CHECK 1: Message length limit
+    MAX_INPUT = 500
+    if len(user_message) > MAX_INPUT:
+        print(f"[SitiAI] Message too long: {len(user_message)} chars")
+        return f"⚠️ *Maaf, mesej terlalu panjang!* Sila ringkaskan kepada {MAX_INPUT} aksara."
+    
+    # 🔥 SECURITY CHECK 2: Anti-spam
+    user_id = "anonymous"
+    is_spam, spam_reason = self.check_spam(user_id, user_message)
+    if is_spam:
+        print(f"[SitiAI] Spam detected: {user_message[:50]}")
+        return spam_reason
+    
+    print(f"[SitiAI] Processing message: {user_message[:50]}")
+    
+    if history is None:
+        history = []
+    
+    MAX_HISTORY = 10
+    if len(history) > MAX_HISTORY:
+        history = history[-MAX_HISTORY:]
+    
+    try:
+        print("[SitiAI] Building contents...")
+        contents = [
+            types.Content(role="user", parts=[types.Part.from_text(text=self.get_system_prompt())])
+        ]
+        
+        for msg in history:
+            contents.append(types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["text"])]))
+        
+        contents.append(types.Content(role="user", parts=[types.Part.from_text(text=user_message)]))
+        
+        print("[SitiAI] Calling Gemini API...")
+        config = types.GenerateContentConfig(
+            top_p=0.45,
+            temperature=0.7,
+            thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
+        )
+        
+        response_text = ""
+        chunk_count = 0
+        for chunk in self.client.models.generate_content_stream(
+            model=self.model, contents=contents, config=config
+        ):
+            if chunk.text:
+                response_text += chunk.text
+                chunk_count += 1
+        
+        print(f"[SitiAI] Response generated: {len(response_text)} chars, {chunk_count} chunks")
+        return response_text
+        
+    except Exception as e:
+        print(f"[SitiAI] ERROR: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return "😔 Maaf, Siti AI ada masalah teknikal."
+    
+    def chat(self, user_message, history=None):
         # 🔥 SECURITY CHECK 1: Message length limit
         MAX_INPUT = 500
         if len(user_message) > MAX_INPUT:
