@@ -1,11 +1,11 @@
 import os
 import json
+import time
 from datetime import datetime, timezone, timedelta
 from google import genai
 from google.genai import types
 import firebase_admin
 from firebase_admin import credentials, firestore
-from google.cloud import firestore
 
 class SitiAI:
     def __init__(self):
@@ -23,7 +23,11 @@ class SitiAI:
             firebase_creds = json.loads(os.environ.get("FIREBASE_CREDENTIALS", "{}"))
             cred = credentials.Certificate(firebase_creds)
             firebase_admin.initialize_app(cred)
-        self.db = firebase_admin.firestore.client()  # ✅ Huruf kecil c
+        self.db = firebase_admin.firestore.client()  # ✅ BETUL: guna firebase_admin
+        
+        # 🔥 ANTI-SPAM: Track user messages
+        self.user_message_history = {}
+        self.MAX_HISTORY_PER_USER = 20
 
     def get_malaysia_time(self):
         tz = timezone(timedelta(hours=8))
@@ -59,7 +63,7 @@ class SitiAI:
 
     def load_menu(self):
         try:
-            docs = self.db.collection("menu").where(filter=firestore.FieldFilter("aktif","==",True)).stream()
+            docs = self.db.collection("menu").where("aktif","==",True).stream()
             menu = []
             for doc in docs:
                 d = doc.to_dict()
@@ -68,6 +72,37 @@ class SitiAI:
         except Exception as e:
             print(f"[SitiAI] Error load menu: {e}")
         return []
+
+    # ==============================================
+    # 🔒 ANTI-SPAM: CHECK MESSAGE RATE
+    # ==============================================
+    def check_spam(self, user_id, message):
+        current_time = time.time()
+        
+        if user_id not in self.user_message_history:
+            self.user_message_history[user_id] = []
+        
+        self.user_message_history[user_id].append((current_time, message))
+        
+        if len(self.user_message_history[user_id]) > self.MAX_HISTORY_PER_USER:
+            self.user_message_history[user_id] = self.user_message_history[user_id][-self.MAX_HISTORY_PER_USER:]
+        
+        # 🔥 CHECK 1: Duplicate message (last 5 messages)
+        recent_msgs = [msg for _, msg in self.user_message_history[user_id][-5:]]
+        if recent_msgs.count(message) >= 2:
+            return True, " *Jangan spam mesej yang sama!* "
+        
+        # 🔥 CHECK 2: Too many messages in 10 seconds
+        recent_10s = [t for t, _ in self.user_message_history[user_id] if current_time - t < 10]
+        if len(recent_10s) >= 5:
+            return True, "⏳ *Slow slow boss! Tunggu sekejap...* 😄"
+        
+        # 🔥 CHECK 3: Too many messages in 1 minute
+        recent_60s = [t for t, _ in self.user_message_history[user_id] if current_time - t < 60]
+        if len(recent_60s) >= 15:
+            return True, "🚦 *Banyak sangat mesej! Rehat sekejap.* 😅"
+        
+        return False, None
 
     def check_kedai_status(self):
         owner = self.load_owner_settings()
@@ -82,7 +117,7 @@ class SitiAI:
         print(f"[SitiAI] Mode dari Firebase: {mode}")
         
         if mode == "BUKA":
-            return {"status":"BUKA","icon":"","sebab":memo or "Dibuka khas!","memo_owner":memo}
+            return {"status":"BUKA","icon":"🟢","sebab":memo or "Dibuka khas!","memo_owner":memo}
         if mode == "TUTUP":
             return {"status":"TUTUP","icon":"🔴","sebab":memo or "Ditutup.","memo_owner":memo}
         
@@ -103,14 +138,14 @@ class SitiAI:
         hari_names = ["Ahad","Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu"]
         
         if hari_num in hari_tutup_list:
-            return {"status":"TUTUP","icon":"","sebab":f"Hari {hari_names[hari_num]} — tutup.","memo_owner":memo}
+            return {"status":"TUTUP","icon":"🔴","sebab":f"Hari {hari_names[hari_num]} — tutup.","memo_owner":memo}
         if buka <= current < tutup:
             baki = tutup - current; j,m = divmod(baki,60)
             return {"status":"BUKA","icon":"🟢","sebab":f"Beroperasi. Tutup {j}j {m}m lagi.","memo_owner":memo}
         if current < buka:
             baki = buka - current; j,m = divmod(baki,60)
             return {"status":"TUTUP","icon":"🔴","sebab":f"Belum buka. Buka {j}j {m}m lagi.","memo_owner":memo}
-        return {"status":"TUTUP","icon":"🔴","sebab":"Sudah tutup.","memo_owner":memo}
+        return {"status":"TUTUP","icon":"","sebab":"Sudah tutup.","memo_owner":memo}
 
     def get_system_prompt(self):
         masa = self.get_malaysia_time()
@@ -136,37 +171,53 @@ Persona: {self.persona['watak']['jantina']} Melayu {self.persona['watak']['umur'
 📍 {self.persona['kedai']['nama']} — {self.persona['kedai']['lokasi']}
 🗺️ Maps: {self.persona['kedai']['google_maps']} | Waze: {self.persona['kedai']['waze']}
 📲 WhatsApp: {self.persona['kedai']['whatsapp']}
- Hari Tutup: {', '.join(hari_tutup_names) if hari_tutup_names else 'Tiada'}
+📅 Hari Tutup: {', '.join(hari_tutup_names) if hari_tutup_names else 'Tiada'}
 
 🍗 MENU:
 {menu_list}
 
-🎤 Gaya: {self.persona['watak']['sapaan']} | Catchphrase: {', '.join(self.persona['watak']['catchphrase'])}
+ Gaya: {self.persona['watak']['sapaan']} | Catchphrase: {', '.join(self.persona['watak']['catchphrase'])}
 📋 Markdown: Bold **menu** | Italic *sedap* | Code `RM5` | Bullet -
 ✅ {chr(10).join(['- '+x for x in self.prompt['wajib']])}
 🚫 {chr(10).join(['- '+x for x in self.prompt['larangan']])}"""
 
+    # ==============================================
+    # 💬 CHAT FUNCTION — DENGAN KESELAMATAN PENUH
+    # ==============================================
     def chat(self, user_message, history=None):
+        # 🔥 SECURITY CHECK 1: Message length limit
         MAX_INPUT = 500
         if len(user_message) > MAX_INPUT:
             return f"⚠️ *Maaf, mesej terlalu panjang!* Sila ringkaskan kepada {MAX_INPUT} aksara."
         
+        #  SECURITY CHECK 2: Anti-spam (guna "anonymous" sebagai default user_id)
+        user_id = "anonymous"  # Boleh tukar jika ada user authentication
+        is_spam, spam_reason = self.check_spam(user_id, user_message)
+        if is_spam:
+            return spam_reason
+        
+        # 🔥 MEMORY: Use provided history or empty list
         if history is None:
             history = []
         
+        #  MEMORY: Limit history to last 10 messages
         MAX_HISTORY = 10
         if len(history) > MAX_HISTORY:
             history = history[-MAX_HISTORY:]
         
+        # Build conversation contents
         contents = [
             types.Content(role="user", parts=[types.Part.from_text(text=self.get_system_prompt())])
         ]
+        
         for msg in history:
             contents.append(types.Content(role=msg["role"], parts=[types.Part.from_text(text=msg["text"])]))
+        
         contents.append(types.Content(role="user", parts=[types.Part.from_text(text=user_message)]))
         
         config = types.GenerateContentConfig(
-            top_p=0.45, temperature=0.7,
+            top_p=0.45,
+            temperature=0.7,
             thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
         )
         
@@ -179,7 +230,8 @@ Persona: {self.persona['watak']['jantina']} Melayu {self.persona['watak']['umur'
                     response_text += chunk.text
             return response_text
         except Exception as e:
-            print(f"[SitiAI] Error: {e}")
-            return " Maaf, Siti AI offline sekejap."
+            print(f"[SitiAI] Error generating response: {e}")
+            return "😔 Maaf, Siti AI ada masalah teknikal."
 
+# Singleton
 siti_ai = SitiAI()
