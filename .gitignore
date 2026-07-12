@@ -32,3 +32,7 @@ Desktop.ini
 # 📝 Logs (Global)
 *.log
 logs/
+
+# Go binaries
+main
+*.exe
