@@ -1,0 +1,41 @@
+# ==============================================
+# ZILA FOOD - BACKEND AI (GOLANG) .gitignore
+# ==============================================
+
+# 🔐 Local Environment Variables
+.env
+
+# 📦 Compiled Binary
+main
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 🧪 Test Binary
+*.test
+
+# 📊 Output of go coverage tool
+*.out
+
+# 🏗️ Dependency directories
+vendor/
+
+# 🆘 IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 🖥️ OS files
+.DS_Store
+Thumbs.db
+
+# 📝 Logs
+*.log
+logs/
+
+# ☁️ Render Temp
+.rendertmp/
