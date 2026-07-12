@@ -425,7 +425,7 @@ Persona: %s Melayu %d tahun, %s.
 %s
 
 🎤 Gaya: %s | Catchphrase: %s
-📋 Markdown: Bold **menu** | Italic *sedap* | Code `RM5` | Bullet -
+📋 Markdown: Bold **menu** | Italic *sedap* | Code 'RM5' | Bullet -
 ✅ %s🚫 %s`,
 		s.persona.Watak.Nama, s.persona.Watak.Peranan,
 		s.persona.Watak.Jantina, s.persona.Watak.Umur, strings.Join(s.persona.Watak.Gaya, ", "),
