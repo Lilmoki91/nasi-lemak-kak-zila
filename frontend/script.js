@@ -850,7 +850,7 @@ async function sendMessage() {
 
     // 📌 BACKEND AI CHATBOT 📌
     try {
-        const res = await fetch('https://zila-food-ai.onrender.com/api/chat', {
+        const res = await fetch('https://zila-food-aigo.onrender.com/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message, session_id: sessionId })
