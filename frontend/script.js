@@ -847,8 +847,10 @@ async function sendMessage() {
     const typingId = 'typing-' + Date.now();
     body.innerHTML += `<div class="chat-bubble chat-ai" id="${typingId}">✏️ Siti Ai menulis...</div>`;
     body.scrollTop = body.scrollHeight;
+
+    // 📌 BACKEND AI CHATBOT 📌
     try {
-        const res = await fetch('https://zila-food.onrender.com/api/chat', {
+        const res = await fetch('https://zila-food-ai.onrender.com/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message, session_id: sessionId })
