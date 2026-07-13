@@ -109,84 +109,67 @@
 ```
 
 nasi-lemak-kak-zila/
-├── index.html                    # Frontend PWA
-├── manifest.json                 # PWA manifest
-├── sw.js                         # Service Worker
-├── style.css                     # Styling
-├── script.js                     # JavaScript frontend
-├── nasi-lemak-icon-192.png       # Ikon PWA 192x192
-├── nasi-lemak-icon-512.png       # Ikon PWA 512x512
-├── persona.json                  # Identiti SITI AI
-├── prompt.json                   # Arahan & doa SITI AI
-├── main.go                       # Backend AI (Go)
-├── go.mod                        # Go module
-├── go.sum                        # Go checksum
-└── README.md                     # Dokumentasi
+├── 📄 index.html                    # Frontend PWA
+├── 📄 manifest.json                 # PWA manifest
+├── 📄 sw.js                         # Service Worker
+├── 📄 style.css                     # Styling
+├── 📄 script.js                     # JavaScript frontend
+├── 🖼️ nasi-lemak-icon-192.png       # Ikon PWA 192x192
+├── 🖼️ nasi-lemak-icon-512.png       # Ikon PWA 512x512
+├── 🧠 persona.json                  # Identiti SITI AI
+├── 📋 prompt.json                   # Arahan & doa SITI AI
+├── ⚡ main.go                       # Backend AI (Go)
+├── 📦 go.mod                        # Go module
+├── 🔒 go.sum                        # Go checksum
+└── 📖 README.md                     # Dokumentasi
 
 ```
 
 ---
 
-## 📦 Cara Guna (Local)
+## 🤖 SITI AI Features
 
-```bash
-# Clone repo
-git clone https://github.com/Lilmoki91/nasi-lemak-kak-zila.git
-
-# Buka frontend dalam browser
-cd nasi-lemak-kak-zila
-open index.html
-
-# Run backend AI (Go)
-cd siti-ai-go
-go build -o siti-ai
-./siti-ai
-```
-
----
-
-🔧 PWA Features
-
-Feature Status
-Installable ✅
-Offline Support ✅
-Auto Update ✅
-Auto Clear Cache ✅
-Maskable Icons ✅
-WhatsApp dalam PWA ✅
-Google Maps ✅
-Waze ✅
+| Feature | Status |
+|---------|:------:|
+| AI Chatbot 24/7 | ✅ |
+| Dual Model (Gemini Flash + Gemma 4) | ✅ |
+| Auto Fallback | ✅ |
+| Memory Perbualan (10 mesej) | ✅ |
+| Anti-Spam | ✅ |
+| Block Mesej Panjang | ✅ |
+| Markdown Formatting | ✅ |
+| Doa Keberkatan | ✅ 🤲 |
+| Baca Menu dari Firebase | ✅ |
+| Baca Waktu dari Firebase | ✅ |
+| Baca Memo Owner | ✅ |
 
 ---
 
-🤖 SITI AI Features
+## 🔧 PWA Features
 
-Feature Status
-AI Chatbot 24/7 ✅
-Dual Model (Gemini Flash + Gemma 4) ✅
-Auto Fallback ✅
-Memory Perbualan (10 mesej) ✅
-Anti-Spam ✅
-Block Mesej Panjang ✅
-Markdown Formatting ✅
-Doa Keberkatan ✅ 🤲
-Baca Menu dari Firebase ✅
-Baca Waktu dari Firebase ✅
-Baca Memo Owner ✅
+| Feature | Status |
+|---------|:------:|
+| Installable | ✅ |
+| Offline Support | ✅ |
+| Auto Update | ✅ |
+| Auto Clear Cache | ✅ |
+| Maskable Icons | ✅ |
+| WhatsApp dalam PWA | ✅ |
+| Google Maps | ✅ |
+| Waze | ✅ |
 
 ---
 
-📝 Lesen
+## 📝 Lesen
 
-Projek ini untuk kegunaan peribadi Nasi Lemak Kak Zila.
+Projek ini untuk kegunaan peribadi **Nasi Lemak Kak Zila**.  
 Dibina dengan ❤️ untuk menyokong perniagaan kecil.
 
 ---
 
-Sekian, terima kasih 🥰
+**Sekian, terima kasih 🥰**
 
 ---
 
-🤲 "Ya Allah, berkati perniagaan Kak Zila, murahkan rezeki, permudahkan urusan, dan jadikan setiap butir nasi lemak sebagai sumber keberkatan. Amin."
-
+🤲 *"Ya Allah, berkati perniagaan Kak Zila, murahkan rezeki, permudahkan urusan, dan jadikan setiap butir nasi lemak sebagai sumber keberkatan. Amin."*
 ```
