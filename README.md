@@ -1,9 +1,11 @@
+```markdown
 # 🍽️ Nasi Lemak Kak Zila
 
 ![Nasi Lemak Kak Zila](https://i.postimg.cc/nhVCC9Pd/media.jpg)
 
 > **Progressive Web App (PWA) untuk Pemesanan Nasi Lemak Kak Zila**  
-> Boleh install di phone, offline support, mesra mobile.
+> Boleh install di phone, offline support, mesra mobile.  
+> Dilengkapi AI Chatbot (SITI AI) dengan Go + REST API + Dual Model Fallback.
 
 ---
 
@@ -39,13 +41,17 @@
 
 ## 🛒 Fungsi Utama
 
-- **🍽️ Menu Digital** — 4 item dengan harga
+- **🍽️ Menu Digital** — 4 item dengan harga (boleh tambah/edit/padam dari Panel Admin)
 - **🛒 Sistem Troli** — Tambah, kurang, kira jumlah automatik
 - **💬 Order WhatsApp** — Hantar pesanan terus ke WhatsApp (berfungsi dalam PWA)
 - **💳 Kad Bisnes Digital** — Depan & belakang, boleh simpan & kongsi
 - **📞 Hubungi** — WhatsApp & panggilan terus
 - **📍 Lokasi** — Google Maps & Waze
 - **📲 PWA** — Boleh install, offline support, auto update
+- **🤖 SITI AI Chatbot** — AI pembantu 24/7 dengan memori perbualan
+- **🔄 Dual Model AI** — Gemini Flash Lite + Gemma 4 (auto fallback)
+- **🤲 AI Berdoa** — Setiap respons SITI AI diakhiri dengan doa keberkatan
+- **🔐 Panel Admin** — Owner boleh kawal semua dari webapps
 
 ---
 
@@ -74,7 +80,8 @@
 
 | Hari | Masa |
 |------|------|
-| Setiap Hari | 7:30 PM - 12:00 AM |
+| Jumaat - Rabu | 7:30 PM - 12:00 AM |
+| Khamis | ❌ Tutup |
 
 ---
 
@@ -85,8 +92,15 @@
 | **HTML5** | Struktur halaman |
 | **CSS3** | Styling & animasi |
 | **JavaScript (Vanilla)** | Sistem troli, navigasi, localStorage |
+| **Go (Golang)** | Backend AI Chatbot |
+| **REST API Direct** | Panggilan ke Gemini API tanpa library |
+| **Gemini Flash Lite** | Model AI utama (laju & murah) |
+| **Gemma 4** | Model AI fallback (power & reliable) |
+| **Firebase Firestore** | Database menu, waktu, memori, settings |
+| **Firebase Storage** | Simpan gambar menu |
 | **PWA** | Installable, offline, Service Worker |
-| **Cloudflare Pages** | Hosting percuma & pantas |
+| **Cloudflare Pages** | Hosting frontend percuma & pantas |
+| **Render** | Hosting backend AI (Go) |
 
 ---
 
@@ -95,12 +109,19 @@
 ```
 
 nasi-lemak-kak-zila/
-├── index.html
-├── manifest.json
-├── sw.js
-├── nasi-lemak-icon-192.png
-├── nasi-lemak-icon-512.png
-└── README.md
+├── index.html                    # Frontend PWA
+├── manifest.json                 # PWA manifest
+├── sw.js                         # Service Worker
+├── style.css                     # Styling
+├── script.js                     # JavaScript frontend
+├── nasi-lemak-icon-192.png       # Ikon PWA 192x192
+├── nasi-lemak-icon-512.png       # Ikon PWA 512x512
+├── persona.json                  # Identiti SITI AI
+├── prompt.json                   # Arahan & doa SITI AI
+├── main.go                       # Backend AI (Go)
+├── go.mod                        # Go module
+├── go.sum                        # Go checksum
+└── README.md                     # Dokumentasi
 
 ```
 
@@ -112,13 +133,18 @@ nasi-lemak-kak-zila/
 # Clone repo
 git clone https://github.com/Lilmoki91/nasi-lemak-kak-zila.git
 
-# Buka dalam browser
+# Buka frontend dalam browser
 cd nasi-lemak-kak-zila
 open index.html
+
+# Run backend AI (Go)
+cd siti-ai-go
+go build -o siti-ai
+./siti-ai
 ```
 
 ---
-```
+
 🔧 PWA Features
 
 Feature Status
@@ -130,16 +156,37 @@ Maskable Icons ✅
 WhatsApp dalam PWA ✅
 Google Maps ✅
 Waze ✅
-```
+
 ---
 
-## 📝 Lesen
+🤖 SITI AI Features
+
+Feature Status
+AI Chatbot 24/7 ✅
+Dual Model (Gemini Flash + Gemma 4) ✅
+Auto Fallback ✅
+Memory Perbualan (10 mesej) ✅
+Anti-Spam ✅
+Block Mesej Panjang ✅
+Markdown Formatting ✅
+Doa Keberkatan ✅ 🤲
+Baca Menu dari Firebase ✅
+Baca Waktu dari Firebase ✅
+Baca Memo Owner ✅
+
+---
+
+📝 Lesen
 
 Projek ini untuk kegunaan peribadi Nasi Lemak Kak Zila.
 Dibina dengan ❤️ untuk menyokong perniagaan kecil.
 
 ---
 
-**Sekian, terima kasih 🥰**
+Sekian, terima kasih 🥰
 
+---
 
+🤲 "Ya Allah, berkati perniagaan Kak Zila, murahkan rezeki, permudahkan urusan, dan jadikan setiap butir nasi lemak sebagai sumber keberkatan. Amin."
+
+```
