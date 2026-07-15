@@ -657,7 +657,7 @@ function tutupPopup() { document.getElementById('popupTutup').classList.remove('
 
 const SHARE_URL = 'https://nasi-lemak-kak-zila.pages.dev';
 const SHARE_TITLE = '🍽️ Nasi Lemak Kak Zila';
-const SHARE_TEXT = 'Jom singgah! Nasi Lemak sedap di PPR Sri Pantai Blok 102 Kuala Lumpur. Buka 7:30PM - 12AM (Jumaat-Rabu). Tutup Khamis.';
+const SHARE_TEXT = 'Jom singgah! Nasi Lemak sedap di PPR Sri Pantai Blok 102 Kuala Lumpur.';
 
 // ==============================================
 // 💬 WHATSAPP
