@@ -1683,7 +1683,7 @@ body {
     border-radius: 8px;
     padding: 10px;
     border: 1px solid #FFC107;
-    animation: fadeIn 0.3s ease;
+    animation: fadeIn 0.5s ease;
     overflow: hidden;
 }
 
