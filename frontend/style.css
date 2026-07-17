@@ -885,7 +885,7 @@ body {
 .siti-chat-box {
     display: none;
     position: absolute;
-    bottom: 3rem;
+    bottom: 2.5rem;
     right: 5px;
     width: 320px;
     height: 70vh;
