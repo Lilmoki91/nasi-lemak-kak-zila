@@ -5,7 +5,10 @@
 
 > **Progressive Web App (PWA) untuk Pemesanan Nasi Lemak Kak Zila**  
 > Boleh install di phone, offline support, mesra mobile.  
-> Dilengkapi AI Chatbot (SITI AI) dengan Go + REST API + Dual Model Fallback.
+> Dilengkapi AI Chatbot (SITI AI) dengan Go + REST API + Dual Model Fallback.  
+>  
+> 🏫 **Dibina oleh: Zulkarnain (16 tahun) — Pelajar SMK Rantau Panjang, Klang, Selangor**  
+> 📚 **Projek IT Sekolah: Bantu Peniaga Kecil | © 2026**
 
 ---
 
@@ -160,10 +163,22 @@ nasi-lemak-kak-zila/
 
 ---
 
+## 👨‍💻 Pembangun
+
+| Perkara | Detail |
+|---------|--------|
+| 🧑 Nama | **Zulkarnain** |
+| 🎂 Umur | **16 tahun** |
+| 🏫 Sekolah | **SMK Rantau Panjang, Klang, Selangor** |
+| 📚 Projek | **Projek IT Tingkatan 4 — Bantu Peniaga Kecil** |
+| 📅 Tahun | **© 2026** |
+
+---
+
 ## 📝 Lesen
 
 Projek ini untuk kegunaan peribadi **Nasi Lemak Kak Zila**.  
-Dibina dengan ❤️ untuk menyokong perniagaan kecil.
+Dibina dengan ❤️ oleh pelajar Malaysia untuk menyokong perniagaan kecil.
 
 ---
 
@@ -173,3 +188,33 @@ Dibina dengan ❤️ untuk menyokong perniagaan kecil.
 
 🤲 *"Ya Allah, berkati perniagaan Kak Zila, murahkan rezeki, permudahkan urusan, dan jadikan setiap butir nasi lemak sebagai sumber keberkatan. Amin."*
 
+---
+
+### 🤲 دعاء الرزق (Doa Murah Rezeki)
+
+<div dir="rtl" style="text-align:center; font-size:1.2rem; line-height:2;">
+
+**اللَّهُمَّ إِنِّي أَسْأَلُكَ رِزْقًا طَيِّبًا**
+**وَعِلْمًا نَافِعًا وَعَمَلًا مُتَقَبَّلًا**
+
+**اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ**
+**وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ**
+
+**اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا**
+**وَقِنَا عَذَابَ النَّارِ**
+
+</div>
+
+<div style="text-align:center; margin-top:10px;">
+
+**Maksudnya:**
+
+*"Ya Allah, sesungguhnya aku memohon kepada-Mu rezeki yang baik, ilmu yang bermanfaat, dan amal yang diterima."*
+
+*"Ya Allah, cukupkanlah aku dengan rezeki-Mu yang halal, dan kayakanlah aku dengan kurniaan-Mu."*
+
+*"Ya Allah, berkatilah apa yang Engkau rezekikan kepada kami, dan peliharalah kami dari azab neraka."*
+
+**Amin ya Rabbal 'alamin.** 🤲
+
+</div>
